@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="..\:/Users/marbleVHS/AndroidStudioProjects/ClairSavedImages/app/src/main/res/layout/fragment_image_details.xml" value="0.19270833333333334" />
+        <entry key="..\:/Users/marbleVHS/AndroidStudioProjects/ClairSavedImages/app/src/main/res/layout/image_details_fragment.xml" value="0.3007246376811594" />
+        <entry key="..\:/Users/marbleVHS/AndroidStudioProjects/ClairSavedImages/app/src/main/res/layout/image_list_fragment.xml" value="0.25" />
+        <entry key="..\:/Users/marbleVHS/AndroidStudioProjects/ClairSavedImages/app/src/main/res/layout/image_view.xml" value="0.2671875" />
+        <entry key="..\:/Users/marbleVHS/AndroidStudioProjects/ClairSavedImages/app/src/main/res/layout/main_fragment.xml" value="0.2821557971014493" />
+      </map>
+    </option>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="Android Studio default JDK" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/build/classes" />
+  </component>
+  <component name="ProjectType">
+    <option name="id" value="Android" />
+  </component>
+</project>
