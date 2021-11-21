@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import androidx.fragment.app.Fragment
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -56,7 +57,9 @@ class ImageListFragment : Fragment() {
                                 binding?.progressBar?.visibility = View.VISIBLE
                             }
                             is ImageListUiState.Error -> {
-                                Log.i("RESP", it.exception.message ?: "0")
+                                binding?.progressBar?.visibility = View.INVISIBLE
+                                Toast.makeText(activity, "Network error", Toast.LENGTH_LONG).show()
+                                Log.e("RESP", it.exception.message ?: "0")
                             }
                         }
                     }

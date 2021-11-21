@@ -57,11 +57,11 @@ class ImageDetailsFragment : Fragment() {
 
     }
 
-    fun initListeners(){
+    private fun initListeners(){
         binding?.likeButton?.setOnClickListener { likeButtonClicked() }
     }
 
-    fun likeButtonClicked(){
+    private fun likeButtonClicked(){
         if(isLiked){
             binding?.likeButton?.setImageResource(R.drawable.baseline_favorite_border_white_36)
             isLiked = !isLiked
