@@ -2,7 +2,7 @@ package com.marblevhs.clairsavedimages.data
 
 import com.google.gson.annotations.SerializedName
 
-data class Response(
+data class UnhandledImageResponse(
     @SerializedName("response")
     val imageResponse: ImageResponse
 )

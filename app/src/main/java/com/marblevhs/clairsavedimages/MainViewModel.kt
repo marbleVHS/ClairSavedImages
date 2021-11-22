@@ -8,11 +8,12 @@ import kotlinx.coroutines.flow.SharedFlow
 
 class MainViewModel: ViewModel() {
 
-     val selectedImageFlow = MutableSharedFlow<Image>(1)
+    private val _selectedImageFlow = MutableSharedFlow<Image>(1)
+    val selectedImageFlow: SharedFlow<Image> = _selectedImageFlow
 
     fun newImageSelected(image: Image){
         CoroutineScope(SupervisorJob()).launch {
-            selectedImageFlow.emit(image)
+            _selectedImageFlow.emit(image)
         }
     }
 

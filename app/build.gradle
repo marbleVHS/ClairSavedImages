@@ -27,7 +27,7 @@ android {
         }
         debug {
             buildConfigField "String", "BASE_URL", "\"https://api.vk.com/\""
-            buildConfigField "int", "PAGE_SIZE", "1000"
+            buildConfigField "int", "PAGE_SIZE", "200"
             buildConfigField "int", "PAGES_QUANTITY", "3"
         }
     }

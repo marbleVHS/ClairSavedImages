@@ -73,7 +73,7 @@ class ImageListFragment : Fragment() {
 
     private fun adapterOnClick(image: Image) {
         CoroutineScope(Job() + Dispatchers.Default).launch{
-            mainViewModel.selectedImageFlow.emit(image)
+            mainViewModel.newImageSelected(image)
             activity?.supportFragmentManager?.beginTransaction()?.replace(
                 R.id.container, ImageDetailsFragment.newInstance())?.addToBackStack(null)?.commit()
         }
