@@ -1,7 +1,6 @@
 package com.marblevhs.clairsavedimages.imageList
 
 import android.os.Bundle
-import android.text.TextUtils.replace
 import android.util.Log
 import android.view.LayoutInflater
 import androidx.fragment.app.Fragment
@@ -9,12 +8,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import com.marblevhs.clairsavedimages.ImageListUiState
 import com.marblevhs.clairsavedimages.MainViewModel
 import com.marblevhs.clairsavedimages.R
 import com.marblevhs.clairsavedimages.data.Image
@@ -25,8 +23,7 @@ import kotlinx.coroutines.flow.collect
 
 class ImageListFragment : Fragment() {
 
-    private val viewModel: ImageListViewModel by viewModels()
-    private val mainViewModel: MainViewModel by activityViewModels()
+    private val viewModel: MainViewModel by activityViewModels()
     private var binding: ImageListFragmentBinding? = null
     private val adapter: ImageListAdapter = ImageListAdapter() { flower -> adapterOnClick(flower) }
 
@@ -38,7 +35,6 @@ class ImageListFragment : Fragment() {
         binding = ImageListFragmentBinding.inflate(layoutInflater)
         return binding?.root!!
     }
-//    inflater.inflate(R.layout.image_list_fragment, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
@@ -50,16 +46,16 @@ class ImageListFragment : Fragment() {
             initListeners()
             lifecycleScope.launch{
                 viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                    viewModel.uiState.collect {
+                    viewModel.listUiState.collect {
                         when (it) {
                             is ImageListUiState.Success -> updateUi(it.images)
-                            is ImageListUiState.LoadingState -> {
-                                binding?.progressBar?.visibility = View.VISIBLE
-                            }
                             is ImageListUiState.Error -> {
-                                binding?.progressBar?.visibility = View.INVISIBLE
+                                binding?.listLoader?.visibility = View.INVISIBLE
                                 Toast.makeText(activity, "Network error", Toast.LENGTH_LONG).show()
                                 Log.e("RESP", it.exception.message ?: "0")
+                            }
+                            is ImageListUiState.LoadingState -> {
+                                binding?.listLoader?.visibility = View.VISIBLE
                             }
                         }
                     }
@@ -73,14 +69,14 @@ class ImageListFragment : Fragment() {
 
     private fun adapterOnClick(image: Image) {
         CoroutineScope(Job() + Dispatchers.Default).launch{
-            mainViewModel.newImageSelected(image)
+            viewModel.newImageSelected(image)
             activity?.supportFragmentManager?.beginTransaction()?.replace(
                 R.id.container, ImageDetailsFragment.newInstance())?.addToBackStack(null)?.commit()
         }
     }
 
     private fun updateUi(images: List<Image>){
-        binding?.progressBar?.visibility = View.INVISIBLE
+        binding?.listLoader?.visibility = View.INVISIBLE
         adapter.submitList(images)
     }
 

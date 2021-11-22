@@ -8,23 +8,20 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import coil.load
+import com.marblevhs.clairsavedimages.ImageDetailsUiState
 import com.marblevhs.clairsavedimages.MainViewModel
 import com.marblevhs.clairsavedimages.R
 import com.marblevhs.clairsavedimages.data.Image
 import com.marblevhs.clairsavedimages.databinding.ImageDetailsFragmentBinding
-import com.marblevhs.clairsavedimages.imageList.ImageListUiState
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 class ImageDetailsFragment : Fragment() {
 
     private var binding: ImageDetailsFragmentBinding? = null
-    private val mainViewModel: MainViewModel by activityViewModels()
-    private val viewModel: ImageDetailsViewModel by viewModels()
-    private var imageId: String = ""
+    private val viewModel: MainViewModel by activityViewModels()
     companion object {
         fun newInstance() = ImageDetailsFragment()
     }
@@ -44,29 +41,36 @@ class ImageDetailsFragment : Fragment() {
 
         initListeners()
 
-        lifecycleScope.launch {
-            mainViewModel.selectedImageFlow.collect {
-                imageId = it.id
-                updateImage(it)
-                viewModel.loadIsLiked(imageId)
-            }
-        }
         lifecycleScope.launch{
-            viewModel.uiState.collect{
+            viewModel.detailsUiState.collect{
                 when (it) {
-                    is ImageDetailsUiState.Success -> updateIsLiked(it.isLiked)
+                    is ImageDetailsUiState.Success -> updateUi(it.image, it.isLiked)
+                    is ImageDetailsUiState.IsLikedChanged -> updateIsLiked(it.isLiked)
                     is ImageDetailsUiState.Error -> {
+                        setLoading(isLoading = false)
+                        binding?.likeButton?.isClickable = false
                         Toast.makeText(activity, "Network error", Toast.LENGTH_LONG).show()
                         Log.e("RESP", it.exception.message ?: "0")
                     }
+                    is ImageDetailsUiState.LoadingState -> setLoading(isLoading = true)
                 }
             }
         }
 
-
-
     }
 
+    private fun setLoading(isLoading: Boolean){
+        if(isLoading){
+            binding?.detailsLoader?.visibility = View.VISIBLE
+            binding?.ivSelectedImage?.visibility = View.INVISIBLE
+            binding?.likeButton?.visibility = View.INVISIBLE
+        } else {
+            binding?.detailsLoader?.visibility = View.GONE
+            binding?.ivSelectedImage?.visibility = View.VISIBLE
+            binding?.likeButton?.visibility = View.VISIBLE
+        }
+
+    }
 
 
     private fun initListeners(){
@@ -74,14 +78,19 @@ class ImageDetailsFragment : Fragment() {
     }
 
     private fun likeButtonClicked(){
-        viewModel.likeButtonClicked(imageId)
+        viewModel.likeButtonClicked()
     }
 
-    private fun updateImage(image: Image) {
-        binding?.ivSelectedImage?.load(image.sizes[image.sizes.size - 1].imageUrl) {
-            crossfade(true)
-            placeholder(R.drawable.ic_download_progress)
-            error(R.drawable.ic_download_error)
+    private fun updateUi(image: Image, isLiked: Boolean) {
+        binding?.likeButton?.isClickable = true
+        if(image.id != "") {
+            setLoading(false)
+            binding?.ivSelectedImage?.load(image.sizes[image.sizes.size - 1].imageUrl) {
+                crossfade(true)
+                placeholder(R.drawable.ic_download_progress)
+                error(R.drawable.ic_download_error)
+            }
+            updateIsLiked(isLiked)
         }
     }
 
