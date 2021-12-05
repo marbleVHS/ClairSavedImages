@@ -1,5 +1,6 @@
 package com.marblevhs.clairsavedimages.imageDetails
 
+
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -41,7 +42,7 @@ class ImageDetailsFragment : Fragment() {
 
         initListeners()
 
-        lifecycleScope.launch{
+        lifecycleScope.launchWhenStarted{
             viewModel.detailsUiState.collect{
                 when (it) {
                     is ImageDetailsUiState.Success -> updateUi(it.image, it.isLiked)
@@ -96,9 +97,9 @@ class ImageDetailsFragment : Fragment() {
 
     private fun updateIsLiked(isLiked: Boolean){
         if(isLiked){
-            binding?.likeButton?.setImageResource(R.drawable.baseline_favorite_white_36)
+            binding?.likeButton?.setImageResource(R.drawable.ic_baseline_favorite_36)
         } else {
-            binding?.likeButton?.setImageResource(R.drawable.baseline_favorite_border_white_36)
+            binding?.likeButton?.setImageResource(R.drawable.ic_baseline_favorite_border_36)
         }
     }
 

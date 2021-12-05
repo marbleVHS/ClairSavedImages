@@ -7,27 +7,29 @@ import com.marblevhs.clairsavedimages.imageRepo.Repo
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 class MainViewModel: ViewModel() {
     private val repo = Repo()
     private var imageId = ""
 
+
     private val detailsDefaultState = ImageDetailsUiState.Success(isLiked = false,
         image = Image("", listOf(Size(type = "x", "https://thiscatdoesnotexist.com/"))))
     private val _detailsUiState = MutableStateFlow<ImageDetailsUiState>(detailsDefaultState)
-    val detailsUiState: StateFlow<ImageDetailsUiState> = _detailsUiState
+    val detailsUiState: StateFlow<ImageDetailsUiState> = _detailsUiState.asStateFlow()
 
     private val detailsExceptionHandler: CoroutineExceptionHandler =
-        CoroutineExceptionHandler { coroutineContext, throwable -> _detailsUiState.value = ImageDetailsUiState.Error(throwable)}
+        CoroutineExceptionHandler { _, throwable -> _detailsUiState.value = ImageDetailsUiState.Error(throwable)}
     private val detailsCoroutineScope =
         CoroutineScope(SupervisorJob() + Dispatchers.IO + detailsExceptionHandler)
 
     private val listDefaultState = ImageListUiState.Success(emptyList())
     private val _listUiState = MutableStateFlow<ImageListUiState>(listDefaultState)
-    val listUiState: StateFlow<ImageListUiState> = _listUiState
+    val listUiState: StateFlow<ImageListUiState> = _listUiState.asStateFlow()
 
     private val listExceptionHandler: CoroutineExceptionHandler =
-        CoroutineExceptionHandler { coroutineContext, throwable -> _listUiState.value = ImageListUiState.Error(throwable)}
+        CoroutineExceptionHandler { _, throwable -> _listUiState.value = ImageListUiState.Error(throwable)}
     private val listCoroutineScope =
         CoroutineScope(SupervisorJob() + Dispatchers.IO + listExceptionHandler)
 
@@ -35,7 +37,7 @@ class MainViewModel: ViewModel() {
 
     fun newImageSelected(image: Image){
         detailsCoroutineScope.launch {
-            _detailsUiState.emit(ImageDetailsUiState.LoadingState)
+            _detailsUiState.value = ImageDetailsUiState.LoadingState
             val isLiked = repo.getIsLiked(image.id)
             imageId = image.id
             _detailsUiState.value = ImageDetailsUiState.Success(isLiked = isLiked,image)
@@ -52,7 +54,7 @@ class MainViewModel: ViewModel() {
     private fun loadIsLiked(imageId: String){
         detailsCoroutineScope.launch {
             val isLiked = repo.getIsLiked(imageId)
-            _detailsUiState.emit(ImageDetailsUiState.IsLikedChanged(isLiked))
+            _detailsUiState.value = ImageDetailsUiState.IsLikedChanged(isLiked)
         }
     }
 

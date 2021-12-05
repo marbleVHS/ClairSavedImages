@@ -38,41 +38,37 @@ class ImageListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
-        if(savedInstanceState == null){
-            binding?.rvImages?.adapter = adapter
-            binding?.rvImages?.layoutManager =
-                StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL)
-            binding?.rvImages?.Recycler()?.setViewCacheSize(300)
-            initListeners()
-            lifecycleScope.launch{
-                viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                    viewModel.listUiState.collect {
-                        when (it) {
-                            is ImageListUiState.Success -> updateUi(it.images)
-                            is ImageListUiState.Error -> {
-                                binding?.listLoader?.visibility = View.INVISIBLE
-                                Toast.makeText(activity, "Network error", Toast.LENGTH_LONG).show()
-                                Log.e("RESP", it.exception.message ?: "0")
-                            }
-                            is ImageListUiState.LoadingState -> {
-                                binding?.listLoader?.visibility = View.VISIBLE
-                            }
-                        }
+        binding?.rvImages?.adapter = adapter
+        binding?.rvImages?.layoutManager =
+            StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL)
+        binding?.rvImages?.Recycler()?.setViewCacheSize(300)
+        initListeners()
+        lifecycleScope.launchWhenStarted{
+            viewModel.listUiState.collect {
+                when (it) {
+                    is ImageListUiState.Success -> updateUi(it.images)
+                    is ImageListUiState.Error -> {
+                        binding?.listLoader?.visibility = View.INVISIBLE
+                        Toast.makeText(activity, "Network error", Toast.LENGTH_LONG).show()
+                        Log.e("RESP", it.exception.message ?: "0")
+                    }
+                    is ImageListUiState.LoadingState -> {
+                        binding?.listLoader?.visibility = View.VISIBLE
                     }
                 }
             }
-        }
 
+        }
         super.onViewCreated(view, savedInstanceState)
 
     }
 
     private fun adapterOnClick(image: Image) {
-        CoroutineScope(Job() + Dispatchers.Default).launch{
+//        CoroutineScope(Job() + Dispatchers.Default).launch{
             viewModel.newImageSelected(image)
             activity?.supportFragmentManager?.beginTransaction()?.replace(
                 R.id.container, ImageDetailsFragment.newInstance())?.addToBackStack(null)?.commit()
-        }
+//        }
     }
 
     private fun updateUi(images: List<Image>){
