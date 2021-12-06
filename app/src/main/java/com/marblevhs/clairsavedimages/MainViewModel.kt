@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.asStateFlow
 class MainViewModel: ViewModel() {
     private val repo = Repo()
     private var imageId = ""
-
+    private var firstTimeInit = true
 
     private val detailsDefaultState = ImageDetailsUiState.Success(isLiked = false,
         image = Image("", listOf(Size(type = "x", "https://thiscatdoesnotexist.com/"))))
@@ -44,8 +44,18 @@ class MainViewModel: ViewModel() {
         }
     }
 
+    fun initImages(){
+        if(firstTimeInit) {
+            _listUiState.value = ImageListUiState.InitLoadingState
+            listCoroutineScope.launch {
+                _listUiState.value = ImageListUiState.Success(repo.getImages())
+            }
+            firstTimeInit = false
+        }
+    }
+
     fun loadImages(){
-        _listUiState.value = ImageListUiState.LoadingState
+        _listUiState.value = ImageListUiState.RefreshLoadingState
         listCoroutineScope.launch {
             _listUiState.value = ImageListUiState.Success(repo.getImages())
         }
@@ -70,7 +80,8 @@ class MainViewModel: ViewModel() {
 sealed class ImageListUiState {
     data class Success(val images: List<Image>): ImageListUiState()
     data class Error(val exception: Throwable): ImageListUiState()
-    object LoadingState : ImageListUiState()
+    object InitLoadingState : ImageListUiState()
+    object RefreshLoadingState : ImageListUiState()
 }
 
 
