@@ -1,6 +1,7 @@
 package com.marblevhs.clairsavedimages.imageList
 
-import android.util.Log
+
+
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,6 +22,7 @@ class ImageListAdapter(private val onClick: (Image) -> Unit): ListAdapter<Image,
         val ivCatImage: ImageView = view.findViewById(R.id.ivCatImage)
         private var currentImage: Image? = null
 
+
         fun bind(image: Image){
             currentImage = image
 
@@ -31,7 +33,7 @@ class ImageListAdapter(private val onClick: (Image) -> Unit): ListAdapter<Image,
                 }
             }
             ivCatImage.load(size.imageUrl) {
-                crossfade(true)
+                crossfade(enable = true)
                 placeholder(R.drawable.ic_download_progress)
                 error(R.drawable.ic_download_error)
             }
@@ -71,7 +73,6 @@ class ImageListAdapter(private val onClick: (Image) -> Unit): ListAdapter<Image,
 //        Log.i("RESP", "Creating view holder")
         return ViewHolder(view, onClick)
     }
-
 
 
 }

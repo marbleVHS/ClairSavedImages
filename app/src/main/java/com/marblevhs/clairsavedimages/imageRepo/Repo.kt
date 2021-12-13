@@ -1,6 +1,5 @@
 package com.marblevhs.clairsavedimages.imageRepo
 
-import android.util.Log
 import com.marblevhs.clairsavedimages.BuildConfig
 import com.marblevhs.clairsavedimages.secrets.Secrets
 import com.marblevhs.clairsavedimages.data.Image

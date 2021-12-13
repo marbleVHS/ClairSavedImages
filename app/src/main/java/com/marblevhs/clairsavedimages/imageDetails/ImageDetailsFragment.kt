@@ -17,7 +17,6 @@ import com.marblevhs.clairsavedimages.R
 import com.marblevhs.clairsavedimages.data.Image
 import com.marblevhs.clairsavedimages.databinding.ImageDetailsFragmentBinding
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
 
 class ImageDetailsFragment : Fragment() {
 
@@ -43,14 +42,13 @@ class ImageDetailsFragment : Fragment() {
         initListeners()
 
         lifecycleScope.launchWhenStarted{
+            viewModel.detailsUiState.replayCache
             viewModel.detailsUiState.collect{
                 when (it) {
                     is ImageDetailsUiState.Success -> updateUi(it.image, it.isLiked)
-                    is ImageDetailsUiState.IsLikedChanged -> updateIsLiked(it.isLiked)
                     is ImageDetailsUiState.Error -> {
                         setLoading(isLoading = false)
-                        binding?.likeButton?.isClickable = false
-                        Toast.makeText(activity, "Network error", Toast.LENGTH_LONG).show()
+                        Toast.makeText(activity, "Network error! Check your connection and try again.", Toast.LENGTH_LONG).show()
                         Log.e("RESP", it.exception.message ?: "0")
                     }
                     is ImageDetailsUiState.LoadingState -> setLoading(isLoading = true)
@@ -83,7 +81,6 @@ class ImageDetailsFragment : Fragment() {
     }
 
     private fun updateUi(image: Image, isLiked: Boolean) {
-        binding?.likeButton?.isClickable = true
         if(image.id != "") {
             setLoading(false)
             binding?.ivSelectedImage?.load(image.sizes[image.sizes.size - 1].imageUrl) {
@@ -92,6 +89,7 @@ class ImageDetailsFragment : Fragment() {
                 error(R.drawable.ic_download_error)
             }
             updateIsLiked(isLiked)
+            binding?.likeButton?.isClickable = true
         }
     }
 

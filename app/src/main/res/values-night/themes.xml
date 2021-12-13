@@ -4,11 +4,9 @@
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/purple_200</item>
         <item name="colorPrimaryDark">#1C1C1C</item>
-        <item name="colorAccent">@color/teal_200</item>
+        <item name="colorAccent">@color/purple_200</item>
         <!-- Customize your theme here. -->
     </style>
-
-
 
 
 </resources>

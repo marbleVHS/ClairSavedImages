@@ -1,9 +1,7 @@
 package com.marblevhs.clairsavedimages.network
 
 import com.marblevhs.clairsavedimages.data.UnhandledImageResponse
-import com.marblevhs.clairsavedimages.data.LikeResponse
 import com.marblevhs.clairsavedimages.data.UnhandledLikeResponse
-import org.json.JSONObject
 import retrofit2.create
 import retrofit2.http.GET
 import retrofit2.http.Query

@@ -11,9 +11,8 @@ import kotlinx.coroutines.flow.asStateFlow
 
 class MainViewModel: ViewModel() {
     private val repo = Repo()
-    private var imageId = ""
-    private var firstTimeInit = true
-
+    private var imageInstance = Image("", listOf(Size(type = "x", "https://thiscatdoesnotexist.com/")))
+    private var firstInit = true
     private val detailsDefaultState = ImageDetailsUiState.Success(isLiked = false,
         image = Image("", listOf(Size(type = "x", "https://thiscatdoesnotexist.com/"))))
     private val _detailsUiState = MutableStateFlow<ImageDetailsUiState>(detailsDefaultState)
@@ -39,18 +38,18 @@ class MainViewModel: ViewModel() {
         detailsCoroutineScope.launch {
             _detailsUiState.value = ImageDetailsUiState.LoadingState
             val isLiked = repo.getIsLiked(image.id)
-            imageId = image.id
+            imageInstance = image
             _detailsUiState.value = ImageDetailsUiState.Success(isLiked = isLiked,image)
         }
     }
 
     fun initImages(){
-        if(firstTimeInit) {
+        if(firstInit) {
             _listUiState.value = ImageListUiState.InitLoadingState
             listCoroutineScope.launch {
                 _listUiState.value = ImageListUiState.Success(repo.getImages())
             }
-            firstTimeInit = false
+            firstInit = false
         }
     }
 
@@ -61,17 +60,11 @@ class MainViewModel: ViewModel() {
         }
     }
 
-    private fun loadIsLiked(imageId: String){
-        detailsCoroutineScope.launch {
-            val isLiked = repo.getIsLiked(imageId)
-            _detailsUiState.value = ImageDetailsUiState.IsLikedChanged(isLiked)
-        }
-    }
-
     fun likeButtonClicked(){
         detailsCoroutineScope.launch {
-            repo.addLike(itemId = imageId)
-            loadIsLiked(imageId = imageId)
+            repo.addLike(itemId = imageInstance.id)
+            val isLiked = repo.getIsLiked(imageInstance.id)
+            _detailsUiState.value = ImageDetailsUiState.Success(isLiked = isLiked,imageInstance)
         }
     }
 
@@ -88,7 +81,6 @@ sealed class ImageListUiState {
 sealed class ImageDetailsUiState {
     data class Success(val isLiked: Boolean, val image: Image): ImageDetailsUiState()
     data class Error(val exception: Throwable): ImageDetailsUiState()
-    data class IsLikedChanged(val isLiked: Boolean): ImageDetailsUiState()
     object LoadingState : ImageDetailsUiState()
 }
 
