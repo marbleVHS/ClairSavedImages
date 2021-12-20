@@ -1,6 +1,8 @@
 package com.marblevhs.clairsavedimages.imageDetails
 
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -16,11 +18,13 @@ import com.marblevhs.clairsavedimages.MainViewModel
 import com.marblevhs.clairsavedimages.R
 import com.marblevhs.clairsavedimages.data.Image
 import com.marblevhs.clairsavedimages.databinding.ImageDetailsFragmentBinding
+import com.ortiz.touchview.OnTouchImageViewListener
 import kotlinx.coroutines.flow.collect
 
 class ImageDetailsFragment : Fragment() {
 
     private var binding: ImageDetailsFragmentBinding? = null
+    private var shortAnimationDuration: Int = 200
     private val viewModel: MainViewModel by activityViewModels()
     companion object {
         fun newInstance() = ImageDetailsFragment()
@@ -74,11 +78,66 @@ class ImageDetailsFragment : Fragment() {
 
     private fun initListeners(){
         binding?.likeButton?.setOnClickListener { likeButtonClicked() }
+        binding?.zoomInButton?.setOnClickListener{ zoomInButtonClicked() }
+        binding?.ivSelectedImage?.setOnTouchImageViewListener(object : OnTouchImageViewListener {
+            val imageView = binding?.ivSelectedImage
+            override fun onMove() {
+                if(imageView != null){
+                    if(imageView.isZoomed){
+                        crossfadeToInvisible()
+                    } else {
+                        crossfadeToVisible()
+                    }
+                }
+            }
+        })
     }
 
     private fun likeButtonClicked(){
         viewModel.likeButtonClicked()
     }
+
+    private fun zoomInButtonClicked(){
+        val imageView = binding?.ivSelectedImage
+        imageView?.setZoom(2f)
+        crossfadeToInvisible()
+    }
+
+    private fun crossfadeToVisible() {
+        binding?.likeButton?.apply {
+            alpha = 0f
+            visibility = View.VISIBLE
+            animate()
+                .alpha(1f)
+                .setDuration(shortAnimationDuration.toLong())
+                .setListener(null)
+        }
+        binding?.zoomInButton?.apply {
+            alpha = 0f
+            visibility = View.VISIBLE
+            animate()
+                .alpha(1f)
+                .setDuration(shortAnimationDuration.toLong())
+                .setListener(null)
+        }
+    }
+
+    private fun crossfadeToInvisible(){
+        binding?.zoomInButton?.animate()?.alpha(0f)?.setDuration(shortAnimationDuration.toLong())
+            ?.setListener(object : AnimatorListenerAdapter() {
+                override fun onAnimationEnd(animation: Animator) {
+                    binding?.zoomInButton?.visibility = View.GONE
+                }
+            })
+        binding?.likeButton?.animate()?.alpha(0f)?.setDuration(shortAnimationDuration.toLong())
+            ?.setListener(object : AnimatorListenerAdapter() {
+                override fun onAnimationEnd(animation: Animator) {
+                    binding?.zoomInButton?.visibility = View.GONE
+                }
+            })
+    }
+
+
 
     private fun updateUi(image: Image, isLiked: Boolean) {
         if(image.id != "") {

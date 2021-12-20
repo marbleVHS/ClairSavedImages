@@ -1,6 +1,6 @@
 <resources>
 
-    <style name="Theme.ClairSavedImages" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="Theme.ClairSavedImages" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimary">@color/purple_500</item>
         <item name="colorPrimaryDark">@color/black_overlay</item>
         <item name="colorAccent">@color/purple_500</item>
