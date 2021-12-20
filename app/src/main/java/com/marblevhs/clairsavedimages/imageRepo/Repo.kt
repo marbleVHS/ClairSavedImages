@@ -38,5 +38,12 @@ class Repo {
             itemId = itemId
         )
     }
+    suspend fun deleteLike(itemId: String){
+        api.requestDeleteLike(
+            ownerId = Secrets.OWNER_ID,
+            accessToken = Secrets.ACCESS_TOKEN,
+            itemId = itemId
+        )
+    }
 
 }

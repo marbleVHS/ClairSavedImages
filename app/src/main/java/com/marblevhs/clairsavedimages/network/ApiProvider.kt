@@ -48,4 +48,13 @@ interface Api {
         @Query("v") v: String = "5.81"
     )
 
+    @GET("method/likes.delete")
+    suspend fun requestDeleteLike(
+        @Query("owner_id") ownerId: String,
+        @Query("type") type: String = "photo",
+        @Query("item_id") itemId: String,
+        @Query("access_token") accessToken: String,
+        @Query("v") v: String = "5.81"
+    )
+
 }

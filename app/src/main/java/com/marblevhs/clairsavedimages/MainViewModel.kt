@@ -62,9 +62,18 @@ class MainViewModel: ViewModel() {
 
     fun likeButtonClicked(){
         detailsCoroutineScope.launch {
-            repo.addLike(itemId = imageInstance.id)
-            val isLiked = repo.getIsLiked(imageInstance.id)
-            _detailsUiState.value = ImageDetailsUiState.Success(isLiked = isLiked,imageInstance)
+            var isLiked = repo.getIsLiked(imageInstance.id)
+            if(isLiked){
+                detailsCoroutineScope.launch { repo.deleteLike(itemId = imageInstance.id) }
+                isLiked = !isLiked
+                _detailsUiState.value =
+                    ImageDetailsUiState.Success(isLiked = isLiked, imageInstance)
+            } else {
+                detailsCoroutineScope.launch { repo.addLike(itemId = imageInstance.id) }
+                isLiked = !isLiked
+                _detailsUiState.value =
+                    ImageDetailsUiState.Success(isLiked = isLiked, imageInstance)
+            }
         }
     }
 

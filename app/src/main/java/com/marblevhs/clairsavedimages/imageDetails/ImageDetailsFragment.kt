@@ -67,10 +67,12 @@ class ImageDetailsFragment : Fragment() {
             binding?.detailsLoader?.visibility = View.VISIBLE
             binding?.ivSelectedImage?.visibility = View.INVISIBLE
             binding?.likeButton?.visibility = View.INVISIBLE
+            binding?.zoomInButton?.visibility = View.INVISIBLE
         } else {
             binding?.detailsLoader?.visibility = View.GONE
             binding?.ivSelectedImage?.visibility = View.VISIBLE
             binding?.likeButton?.visibility = View.VISIBLE
+            binding?.zoomInButton?.visibility = View.VISIBLE
         }
 
     }
@@ -84,9 +86,9 @@ class ImageDetailsFragment : Fragment() {
             override fun onMove() {
                 if(imageView != null){
                     if(imageView.isZoomed){
-                        crossfadeToInvisible()
+                        fadeToInvisible()
                     } else {
-                        crossfadeToVisible()
+                        fadeToVisible()
                     }
                 }
             }
@@ -100,10 +102,10 @@ class ImageDetailsFragment : Fragment() {
     private fun zoomInButtonClicked(){
         val imageView = binding?.ivSelectedImage
         imageView?.setZoom(2f)
-        crossfadeToInvisible()
+        fadeToInvisible()
     }
 
-    private fun crossfadeToVisible() {
+    private fun fadeToVisible() {
         binding?.likeButton?.apply {
             alpha = 0f
             visibility = View.VISIBLE
@@ -122,7 +124,7 @@ class ImageDetailsFragment : Fragment() {
         }
     }
 
-    private fun crossfadeToInvisible(){
+    private fun fadeToInvisible(){
         binding?.zoomInButton?.animate()?.alpha(0f)?.setDuration(shortAnimationDuration.toLong())
             ?.setListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: Animator) {
@@ -141,7 +143,6 @@ class ImageDetailsFragment : Fragment() {
 
     private fun updateUi(image: Image, isLiked: Boolean) {
         if(image.id != "") {
-            setLoading(false)
             binding?.ivSelectedImage?.load(image.sizes[image.sizes.size - 1].imageUrl) {
                 crossfade(true)
                 placeholder(R.drawable.ic_download_progress)
@@ -149,15 +150,12 @@ class ImageDetailsFragment : Fragment() {
             }
             updateIsLiked(isLiked)
             binding?.likeButton?.isClickable = true
+            setLoading(false)
         }
     }
 
     private fun updateIsLiked(isLiked: Boolean){
-        if(isLiked){
-            binding?.likeButton?.setImageResource(R.drawable.ic_baseline_favorite_36)
-        } else {
-            binding?.likeButton?.setImageResource(R.drawable.ic_baseline_favorite_border_36)
-        }
+        binding?.likeButton?.isChecked = isLiked
     }
 
 
