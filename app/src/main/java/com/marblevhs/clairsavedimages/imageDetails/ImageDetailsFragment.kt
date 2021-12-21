@@ -24,7 +24,7 @@ import kotlinx.coroutines.flow.collect
 class ImageDetailsFragment : Fragment() {
 
     private var binding: ImageDetailsFragmentBinding? = null
-    private var shortAnimationDuration: Int = 200
+    private var shortAnimationDuration: Int = 0
     private val viewModel: MainViewModel by activityViewModels()
     companion object {
         fun newInstance() = ImageDetailsFragment()
@@ -44,7 +44,7 @@ class ImageDetailsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         initListeners()
-
+        shortAnimationDuration = resources.getInteger(android.R.integer.config_shortAnimTime)
         lifecycleScope.launchWhenStarted{
             viewModel.detailsUiState.replayCache
             viewModel.detailsUiState.collect{
@@ -85,7 +85,7 @@ class ImageDetailsFragment : Fragment() {
             val imageView = binding?.ivSelectedImage
             override fun onMove() {
                 if(imageView != null){
-                    if(imageView.isZoomed){
+                    if(imageView.currentZoom > 1.1){
                         fadeToInvisible()
                     } else {
                         fadeToVisible()
@@ -106,16 +106,14 @@ class ImageDetailsFragment : Fragment() {
     }
 
     private fun fadeToVisible() {
-        binding?.likeButton?.apply {
-            alpha = 0f
+        binding?.zoomInButton?.apply {
             visibility = View.VISIBLE
             animate()
                 .alpha(1f)
                 .setDuration(shortAnimationDuration.toLong())
                 .setListener(null)
         }
-        binding?.zoomInButton?.apply {
-            alpha = 0f
+        binding?.likeButton?.apply {
             visibility = View.VISIBLE
             animate()
                 .alpha(1f)
@@ -125,18 +123,20 @@ class ImageDetailsFragment : Fragment() {
     }
 
     private fun fadeToInvisible(){
-        binding?.zoomInButton?.animate()?.alpha(0f)?.setDuration(shortAnimationDuration.toLong())
-            ?.setListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator) {
-                    binding?.zoomInButton?.visibility = View.GONE
-                }
-            })
-        binding?.likeButton?.animate()?.alpha(0f)?.setDuration(shortAnimationDuration.toLong())
-            ?.setListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator) {
-                    binding?.zoomInButton?.visibility = View.GONE
-                }
-            })
+        binding?.zoomInButton?.apply {
+            visibility = View.VISIBLE
+            animate()
+                .alpha(0f)
+                .setDuration(shortAnimationDuration.toLong())
+                .setListener(null)
+        }
+        binding?.likeButton?.apply {
+            visibility = View.VISIBLE
+            animate()
+                .alpha(0f)
+                .setDuration(shortAnimationDuration.toLong())
+                .setListener(null)
+        }
     }
 
 
