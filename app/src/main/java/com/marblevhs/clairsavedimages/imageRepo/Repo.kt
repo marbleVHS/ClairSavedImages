@@ -9,12 +9,13 @@ import com.marblevhs.clairsavedimages.network.ApiProvider
 class Repo {
 
     private val api = ApiProvider().getApi()
-    suspend fun getImages(): List<Image> {
+    suspend fun getImages(rev: Int): List<Image> {
         val images: MutableList<Image> = mutableListOf()
         for(i in 0..BuildConfig.PAGES_QUANTITY){
             val response = api.requestImages(
                 ownerId = Secrets.OWNER_ID,
                 albumId = "saved",
+                rev = rev,
                 count = BuildConfig.PAGE_SIZE,
                 offset = i * BuildConfig.PAGE_SIZE,
                 accessToken = Secrets.ACCESS_TOKEN)

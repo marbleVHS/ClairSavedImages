@@ -11,10 +11,10 @@ import kotlinx.coroutines.flow.asStateFlow
 
 class MainViewModel: ViewModel() {
     private val repo = Repo()
-    private var imageInstance = Image("", listOf(Size(type = "x", "https://thiscatdoesnotexist.com/")))
+    private var imageInstance = Image("", sizes = listOf(Size(type = "x", "https://thiscatdoesnotexist.com/")), height = 1, width = 1)
     private var firstInit = true
     private val detailsDefaultState = ImageDetailsUiState.Success(isLiked = false,
-        image = Image("", listOf(Size(type = "x", "https://thiscatdoesnotexist.com/"))))
+        image = Image("", sizes = listOf(Size(type = "x", "https://thiscatdoesnotexist.com/")), height = 1, width = 1))
     private val _detailsUiState = MutableStateFlow<ImageDetailsUiState>(detailsDefaultState)
     val detailsUiState: StateFlow<ImageDetailsUiState> = _detailsUiState.asStateFlow()
 
@@ -23,15 +23,18 @@ class MainViewModel: ViewModel() {
     private val detailsCoroutineScope =
         CoroutineScope(SupervisorJob() + Dispatchers.IO + detailsExceptionHandler)
 
-    private val listDefaultState = ImageListUiState.Success(emptyList())
+    private val listDefaultState = ImageListUiState.Success(emptyList(), rev = 1)
     private val _listUiState = MutableStateFlow<ImageListUiState>(listDefaultState)
     val listUiState: StateFlow<ImageListUiState> = _listUiState.asStateFlow()
+
+    private val favouritesDefaultState = FavouritesListUiState.Success(emptyList(), rev = 1)
+    private val _favouritesUiState = MutableStateFlow<FavouritesListUiState>(favouritesDefaultState)
+    val favouritesUiState: StateFlow<FavouritesListUiState> = _favouritesUiState.asStateFlow()
 
     private val listExceptionHandler: CoroutineExceptionHandler =
         CoroutineExceptionHandler { _, throwable -> _listUiState.value = ImageListUiState.Error(throwable)}
     private val listCoroutineScope =
         CoroutineScope(SupervisorJob() + Dispatchers.IO + listExceptionHandler)
-
 
 
     fun newImageSelected(image: Image){
@@ -43,20 +46,21 @@ class MainViewModel: ViewModel() {
         }
     }
 
-    fun initImages(){
+    fun initImages(rev: Int){
         if(firstInit) {
             _listUiState.value = ImageListUiState.InitLoadingState
             listCoroutineScope.launch {
-                _listUiState.value = ImageListUiState.Success(repo.getImages())
+                _listUiState.value = ImageListUiState.Success(repo.getImages(rev = rev), rev = rev)
             }
             firstInit = false
         }
     }
 
-    fun loadImages(){
+
+    fun loadImages(rev: Int){
         _listUiState.value = ImageListUiState.RefreshLoadingState
         listCoroutineScope.launch {
-            _listUiState.value = ImageListUiState.Success(repo.getImages())
+            _listUiState.value = ImageListUiState.Success(repo.getImages(rev = rev), rev = rev)
         }
     }
 
@@ -80,12 +84,18 @@ class MainViewModel: ViewModel() {
 }
 
 sealed class ImageListUiState {
-    data class Success(val images: List<Image>): ImageListUiState()
+    data class Success(val images: List<Image>, val rev: Int): ImageListUiState()
     data class Error(val exception: Throwable): ImageListUiState()
     object InitLoadingState : ImageListUiState()
     object RefreshLoadingState : ImageListUiState()
 }
 
+sealed class FavouritesListUiState {
+    data class Success(val images: List<Image>, val rev: Int): FavouritesListUiState()
+    data class Error(val exception: Throwable): FavouritesListUiState()
+    object InitLoadingState : FavouritesListUiState()
+    object RefreshLoadingState : FavouritesListUiState()
+}
 
 sealed class ImageDetailsUiState {
     data class Success(val isLiked: Boolean, val image: Image): ImageDetailsUiState()

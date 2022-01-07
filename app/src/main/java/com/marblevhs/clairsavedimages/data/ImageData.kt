@@ -15,6 +15,10 @@ data class ImageResponse(
 data class Image(
     @SerializedName("id")
     val id: String,
+    @SerializedName("width")
+    val width: Int,
+    @SerializedName("height")
+    val height: Int,
     @SerializedName("sizes")
     val sizes: List<Size>
 )

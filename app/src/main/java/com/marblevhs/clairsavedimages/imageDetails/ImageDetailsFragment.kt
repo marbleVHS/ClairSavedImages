@@ -1,8 +1,7 @@
 package com.marblevhs.clairsavedimages.imageDetails
 
 
-import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
+
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -13,18 +12,21 @@ import android.widget.Toast
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import coil.load
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.marblevhs.clairsavedimages.ImageDetailsUiState
 import com.marblevhs.clairsavedimages.MainViewModel
 import com.marblevhs.clairsavedimages.R
 import com.marblevhs.clairsavedimages.data.Image
+import com.marblevhs.clairsavedimages.data.Size
 import com.marblevhs.clairsavedimages.databinding.ImageDetailsFragmentBinding
 import com.ortiz.touchview.OnTouchImageViewListener
-import kotlinx.coroutines.flow.collect
+
 
 class ImageDetailsFragment : Fragment() {
 
     private var binding: ImageDetailsFragmentBinding? = null
     private var shortAnimationDuration: Int = 0
+    private var bottomNavView: BottomNavigationView? = null
     private val viewModel: MainViewModel by activityViewModels()
     companion object {
         fun newInstance() = ImageDetailsFragment()
@@ -40,9 +42,15 @@ class ImageDetailsFragment : Fragment() {
         return binding?.root!!
     }
 
+    override fun onPrimaryNavigationFragmentChanged(isPrimaryNavigationFragment: Boolean) {
+        super.onPrimaryNavigationFragmentChanged(isPrimaryNavigationFragment)
+        bottomNavView?.visibility = View.VISIBLE
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        bottomNavView = activity?.findViewById(R.id.bottomNavBar)
+        bottomNavView?.visibility = View.GONE
         initListeners()
         shortAnimationDuration = resources.getInteger(android.R.integer.config_shortAnimTime)
         lifecycleScope.launchWhenStarted{
@@ -68,11 +76,13 @@ class ImageDetailsFragment : Fragment() {
             binding?.ivSelectedImage?.visibility = View.INVISIBLE
             binding?.likeButton?.visibility = View.INVISIBLE
             binding?.zoomInButton?.visibility = View.INVISIBLE
+            binding?.favouritesButton?.visibility = View.INVISIBLE
         } else {
             binding?.detailsLoader?.visibility = View.GONE
             binding?.ivSelectedImage?.visibility = View.VISIBLE
             binding?.likeButton?.visibility = View.VISIBLE
             binding?.zoomInButton?.visibility = View.VISIBLE
+            binding?.favouritesButton?.visibility = View.VISIBLE
         }
 
     }
@@ -80,7 +90,8 @@ class ImageDetailsFragment : Fragment() {
 
     private fun initListeners(){
         binding?.likeButton?.setOnClickListener { likeButtonClicked() }
-        binding?.zoomInButton?.setOnClickListener{ zoomInButtonClicked() }
+        binding?.zoomInButton?.setOnClickListener { zoomInButtonClicked() }
+        binding?.favouritesButton?.setOnClickListener { favouritesButtonClicked() }
         binding?.ivSelectedImage?.setOnTouchImageViewListener(object : OnTouchImageViewListener {
             val imageView = binding?.ivSelectedImage
             override fun onMove() {
@@ -105,6 +116,10 @@ class ImageDetailsFragment : Fragment() {
         fadeToInvisible()
     }
 
+    private fun favouritesButtonClicked(){
+//        TODO: implement
+    }
+
     private fun fadeToVisible() {
         binding?.zoomInButton?.apply {
             visibility = View.VISIBLE
@@ -114,6 +129,13 @@ class ImageDetailsFragment : Fragment() {
                 .setListener(null)
         }
         binding?.likeButton?.apply {
+            visibility = View.VISIBLE
+            animate()
+                .alpha(1f)
+                .setDuration(shortAnimationDuration.toLong())
+                .setListener(null)
+        }
+        binding?.favouritesButton?.apply {
             visibility = View.VISIBLE
             animate()
                 .alpha(1f)
@@ -137,12 +159,21 @@ class ImageDetailsFragment : Fragment() {
                 .setDuration(shortAnimationDuration.toLong())
                 .setListener(null)
         }
+        binding?.favouritesButton?.apply {
+            visibility = View.VISIBLE
+            animate()
+                .alpha(0f)
+                .setDuration(shortAnimationDuration.toLong())
+                .setListener(null)
+        }
     }
 
 
+    private var curImage: Image = Image("", sizes = listOf(Size(type = "x", "https://thiscatdoesnotexist.com/")), height = 1, width = 1)
 
     private fun updateUi(image: Image, isLiked: Boolean) {
         if(image.id != "") {
+            curImage = image
             binding?.ivSelectedImage?.load(image.sizes[image.sizes.size - 1].imageUrl) {
                 crossfade(true)
                 placeholder(R.drawable.ic_download_progress)

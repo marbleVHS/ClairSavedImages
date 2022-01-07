@@ -1,0 +1,19 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+
+    <item
+        android:id="@+id/menu_sort"
+        android:icon="@drawable/ic_baseline_sort_24"
+        android:title="Item"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/menu_refresh"
+        android:title="Refresh"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/menu_info"
+        android:title="About app"
+        app:showAsAction="never" />
+
+</menu>

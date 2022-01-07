@@ -11,7 +11,7 @@
         android:label="image_list_fragment"
         tools:layout="@layout/image_list_fragment" >
         <action
-            android:id="@+id/action_open_imageDetails"
+            android:id="@+id/action_open_imageDetails_imageList"
             app:destination="@id/imageDetailsFragment"
             app:enterAnim="@anim/nav_default_enter_anim"
             app:exitAnim="@anim/nav_default_exit_anim"
@@ -24,4 +24,17 @@
         android:name="com.marblevhs.clairsavedimages.imageDetails.ImageDetailsFragment"
         android:label="image_details_fragment"
         tools:layout="@layout/image_details_fragment" />
+    <fragment
+        android:id="@+id/favouritesListFragment"
+        android:name="com.marblevhs.clairsavedimages.favouritesList.FavouritesListFragment"
+        android:label="favourites_list_fragment"
+        tools:layout="@layout/favourites_list_fragment" >
+        <action
+            android:id="@+id/action_open_imageDetails_favouritesList"
+            app:destination="@id/imageDetailsFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+    </fragment>
 </navigation>

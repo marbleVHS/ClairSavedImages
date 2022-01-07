@@ -1,4 +1,4 @@
-package com.marblevhs.clairsavedimages.imageList
+package com.marblevhs.clairsavedimages.favouritesList
 
 
 
@@ -13,17 +13,19 @@ import coil.load
 import com.marblevhs.clairsavedimages.R
 import com.marblevhs.clairsavedimages.data.Image
 
-class ImageListAdapter(private val onClick: (Image) -> Unit): ListAdapter<Image, ImageListAdapter.ViewHolder>(
+class FavouritesListAdapter(private val onClick: (Image) -> Unit): ListAdapter<Image, FavouritesListAdapter.ViewHolder>(
     ImageDiffCallback
 ){
 
 
     class ViewHolder(view: View,  val onClick: (Image) -> Unit): RecyclerView.ViewHolder(view){
         private val ivImage: ImageView = view.findViewById(R.id.ivImage)
-        var currentImage: Image? = null
+        private var currentImage: Image? = null
+
 
         fun bind(image: Image){
             currentImage = image
+
             var size = image.sizes[image.sizes.size - 1]
             for (i in image.sizes.indices){
                 if(image.sizes[i].type == "p"){

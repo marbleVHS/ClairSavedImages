@@ -12,20 +12,32 @@
         <entry key="..\:/Users/marbleVHS/AndroidStudioProjects/ClairSavedImages/app/src/main/res/drawable-night/ic_paw_outline.xml" value="0.23854166666666668" />
         <entry key="..\:/Users/marbleVHS/AndroidStudioProjects/ClairSavedImages/app/src/main/res/drawable/baseline_favorite_24.xml" value="0.35846153846153844" />
         <entry key="..\:/Users/marbleVHS/AndroidStudioProjects/ClairSavedImages/app/src/main/res/drawable/baseline_favorite_border_24.xml" value="0.35846153846153844" />
+        <entry key="..\:/Users/marbleVHS/AndroidStudioProjects/ClairSavedImages/app/src/main/res/drawable/favourites_button_drawable.xml" value="0.36256410256410254" />
+        <entry key="..\:/Users/marbleVHS/AndroidStudioProjects/ClairSavedImages/app/src/main/res/drawable/ic_baseline_bookmark_24.xml" value="0.36256410256410254" />
+        <entry key="..\:/Users/marbleVHS/AndroidStudioProjects/ClairSavedImages/app/src/main/res/drawable/ic_baseline_bookmark_36.xml" value="0.36256410256410254" />
+        <entry key="..\:/Users/marbleVHS/AndroidStudioProjects/ClairSavedImages/app/src/main/res/drawable/ic_baseline_bookmark_border_24.xml" value="0.36256410256410254" />
+        <entry key="..\:/Users/marbleVHS/AndroidStudioProjects/ClairSavedImages/app/src/main/res/drawable/ic_baseline_bookmark_border_36.xml" value="0.36256410256410254" />
         <entry key="..\:/Users/marbleVHS/AndroidStudioProjects/ClairSavedImages/app/src/main/res/drawable/ic_baseline_favorite_36.xml" value="0.23854166666666668" />
+        <entry key="..\:/Users/marbleVHS/AndroidStudioProjects/ClairSavedImages/app/src/main/res/drawable/ic_baseline_favorite_border_24.xml" value="0.36256410256410254" />
         <entry key="..\:/Users/marbleVHS/AndroidStudioProjects/ClairSavedImages/app/src/main/res/drawable/ic_baseline_favorite_border_36.xml" value="0.23854166666666668" />
+        <entry key="..\:/Users/marbleVHS/AndroidStudioProjects/ClairSavedImages/app/src/main/res/drawable/ic_baseline_sort_24.xml" value="0.36256410256410254" />
         <entry key="..\:/Users/marbleVHS/AndroidStudioProjects/ClairSavedImages/app/src/main/res/drawable/ic_cat_placeholder.xml" value="0.35846153846153844" />
         <entry key="..\:/Users/marbleVHS/AndroidStudioProjects/ClairSavedImages/app/src/main/res/drawable/ic_download_error.xml" value="0.23854166666666668" />
         <entry key="..\:/Users/marbleVHS/AndroidStudioProjects/ClairSavedImages/app/src/main/res/drawable/ic_download_progress.xml" value="0.23854166666666668" />
         <entry key="..\:/Users/marbleVHS/AndroidStudioProjects/ClairSavedImages/app/src/main/res/drawable/ic_launcher_background.xml" value="0.23854166666666668" />
         <entry key="..\:/Users/marbleVHS/AndroidStudioProjects/ClairSavedImages/app/src/main/res/drawable/ic_paw_outline.xml" value="0.23854166666666668" />
+        <entry key="..\:/Users/marbleVHS/AndroidStudioProjects/ClairSavedImages/app/src/main/res/drawable/ic_search_black_24dp.xml" value="0.36256410256410254" />
         <entry key="..\:/Users/marbleVHS/AndroidStudioProjects/ClairSavedImages/app/src/main/res/drawable/like_button_drawable.xml" value="0.35846153846153844" />
+        <entry key="..\:/Users/marbleVHS/AndroidStudioProjects/ClairSavedImages/app/src/main/res/layout/favourites_list_fragment.xml" value="0.2265625" />
         <entry key="..\:/Users/marbleVHS/AndroidStudioProjects/ClairSavedImages/app/src/main/res/layout/fragment_image_details.xml" value="0.19270833333333334" />
-        <entry key="..\:/Users/marbleVHS/AndroidStudioProjects/ClairSavedImages/app/src/main/res/layout/image_details_fragment.xml" value="0.67" />
+        <entry key="..\:/Users/marbleVHS/AndroidStudioProjects/ClairSavedImages/app/src/main/res/layout/image_details_fragment.xml" value="0.5" />
         <entry key="..\:/Users/marbleVHS/AndroidStudioProjects/ClairSavedImages/app/src/main/res/layout/image_list_fragment.xml" value="0.25" />
-        <entry key="..\:/Users/marbleVHS/AndroidStudioProjects/ClairSavedImages/app/src/main/res/layout/image_view.xml" value="0.2671875" />
+        <entry key="..\:/Users/marbleVHS/AndroidStudioProjects/ClairSavedImages/app/src/main/res/layout/image_view.xml" value="0.22" />
         <entry key="..\:/Users/marbleVHS/AndroidStudioProjects/ClairSavedImages/app/src/main/res/layout/main_activity.xml" value="0.297554347826087" />
         <entry key="..\:/Users/marbleVHS/AndroidStudioProjects/ClairSavedImages/app/src/main/res/layout/main_fragment.xml" value="0.2821557971014493" />
+        <entry key="..\:/Users/marbleVHS/AndroidStudioProjects/ClairSavedImages/app/src/main/res/layout/switch_item.xml" value="2.0" />
+        <entry key="..\:/Users/marbleVHS/AndroidStudioProjects/ClairSavedImages/app/src/main/res/menu/image_list_menu.xml" value="0.35208333333333336" />
+        <entry key="..\:/Users/marbleVHS/AndroidStudioProjects/ClairSavedImages/app/src/main/res/menu/nav_bar_menu.xml" value="0.2265625" />
       </map>
     </option>
   </component>
@@ -34,5 +46,12 @@
   </component>
   <component name="ProjectType">
     <option name="id" value="Android" />
+  </component>
+  <component name="VisualizationToolProject">
+    <option name="state">
+      <ProjectState>
+        <option name="scale" value="0.297554347826087" />
+      </ProjectState>
+    </option>
   </component>
 </project>
