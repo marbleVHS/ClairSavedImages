@@ -1,20 +1,29 @@
 package com.marblevhs.clairsavedimages.imageRepo
 
+
 import com.marblevhs.clairsavedimages.BuildConfig
 import com.marblevhs.clairsavedimages.secrets.Secrets
-import com.marblevhs.clairsavedimages.data.Image
-import com.marblevhs.clairsavedimages.network.ApiProvider
+import com.marblevhs.clairsavedimages.data.JsonImage
+import com.marblevhs.clairsavedimages.network.ImageApi
+import javax.inject.Inject
+
+interface Repo{
+    suspend fun getImages(ownerId: String, albumId: String, rev: Int): List<JsonImage>
+    suspend fun getIsLiked(itemId: String, ownerId: String): Boolean
+    suspend fun addLike(itemId: String, ownerId: String)
+    suspend fun deleteLike(itemId: String, ownerId: String)
+
+}
+
+class RepoImpl @Inject constructor(private val api: ImageApi): Repo {
 
 
-class Repo {
-
-    private val api = ApiProvider().getApi()
-    suspend fun getImages(rev: Int): List<Image> {
-        val images: MutableList<Image> = mutableListOf()
+    override suspend fun getImages(ownerId: String, albumId: String, rev: Int): List<JsonImage> {
+        val images: MutableList<JsonImage> = mutableListOf()
         for(i in 0..BuildConfig.PAGES_QUANTITY){
             val response = api.requestImages(
-                ownerId = Secrets.OWNER_ID,
-                albumId = "saved",
+                ownerId = ownerId,
+                albumId = albumId,
                 rev = rev,
                 count = BuildConfig.PAGE_SIZE,
                 offset = i * BuildConfig.PAGE_SIZE,
@@ -24,24 +33,24 @@ class Repo {
         return images
     }
 
-    suspend fun getIsLiked(itemId: String): Boolean {
+    override suspend fun getIsLiked(itemId: String, ownerId: String): Boolean {
         val isLiked = api.requestIsLiked(
-            ownerId = Secrets.OWNER_ID,
+            ownerId = ownerId,
             accessToken = Secrets.ACCESS_TOKEN,
             itemId = itemId
         ).likeResponse.liked
         return (isLiked == 1)
     }
-    suspend fun addLike(itemId: String){
+    override suspend fun addLike(itemId: String, ownerId: String){
         api.requestAddLike(
-            ownerId = Secrets.OWNER_ID,
+            ownerId = ownerId,
             accessToken = Secrets.ACCESS_TOKEN,
             itemId = itemId
         )
     }
-    suspend fun deleteLike(itemId: String){
+    override suspend fun deleteLike(itemId: String, ownerId: String){
         api.requestDeleteLike(
-            ownerId = Secrets.OWNER_ID,
+            ownerId = ownerId,
             accessToken = Secrets.ACCESS_TOKEN,
             itemId = itemId
         )

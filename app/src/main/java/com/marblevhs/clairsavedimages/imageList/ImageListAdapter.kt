@@ -1,36 +1,42 @@
 package com.marblevhs.clairsavedimages.imageList
 
 
-
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.cardview.widget.CardView
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import com.marblevhs.clairsavedimages.R
-import com.marblevhs.clairsavedimages.data.Image
+import com.marblevhs.clairsavedimages.data.LocalImage
 
-class ImageListAdapter(private val onClick: (Image) -> Unit): ListAdapter<Image, ImageListAdapter.ViewHolder>(
+
+
+
+class ImageListAdapter(private val onClick: (LocalImage) -> Unit): ListAdapter<LocalImage, ImageListAdapter.ViewHolder>(
     ImageDiffCallback
 ){
 
 
-    class ViewHolder(view: View,  val onClick: (Image) -> Unit): RecyclerView.ViewHolder(view){
+    class ViewHolder(view: View,  val onClick: (LocalImage) -> Unit): RecyclerView.ViewHolder(view){
         private val ivImage: ImageView = view.findViewById(R.id.ivImage)
-        var currentImage: Image? = null
+        private val constraintLayout: ConstraintLayout = view.findViewById(R.id.ConstraintLayout)
+        private val cardView: CardView = view.findViewById(R.id.cardView)
+        var currentImage: LocalImage? = null
+        val set = ConstraintSet()
 
-        fun bind(image: Image){
+        fun bind(image: LocalImage){
             currentImage = image
-            var size = image.sizes[image.sizes.size - 1]
-            for (i in image.sizes.indices){
-                if(image.sizes[i].type == "p"){
-                    size = image.sizes[i]
-                }
-            }
-            ivImage.load(size.imageUrl) {
+            val ratio = String.format("%d:%d", image.width, image.height)
+            set.clone(constraintLayout)
+            set.setDimensionRatio(cardView.id, ratio)
+            set.applyTo(constraintLayout)
+            ivImage.load(image.thumbnailUrl) {
                 crossfade(enable = true)
                 placeholder(R.drawable.ic_download_progress)
                 error(R.drawable.ic_download_error)
@@ -47,12 +53,12 @@ class ImageListAdapter(private val onClick: (Image) -> Unit): ListAdapter<Image,
 
     }
 
-    object ImageDiffCallback: DiffUtil.ItemCallback<Image>() {
-        override fun areContentsTheSame(oldItem: Image, newItem: Image): Boolean {
+    object ImageDiffCallback: DiffUtil.ItemCallback<LocalImage>() {
+        override fun areContentsTheSame(oldItem: LocalImage, newItem: LocalImage): Boolean {
             return oldItem == newItem
         }
 
-        override fun areItemsTheSame(oldItem: Image, newItem: Image): Boolean {
+        override fun areItemsTheSame(oldItem: LocalImage, newItem: LocalImage): Boolean {
             return oldItem.id == newItem.id
         }
 

@@ -2,6 +2,7 @@ package com.marblevhs.clairsavedimages.imageDetails
 
 
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -10,28 +11,46 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import coil.load
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.marblevhs.clairsavedimages.ImageDetailsUiState
+import com.marblevhs.clairsavedimages.MainApp
 import com.marblevhs.clairsavedimages.MainViewModel
 import com.marblevhs.clairsavedimages.R
-import com.marblevhs.clairsavedimages.data.Image
-import com.marblevhs.clairsavedimages.data.Size
+import com.marblevhs.clairsavedimages.data.LocalImage
 import com.marblevhs.clairsavedimages.databinding.ImageDetailsFragmentBinding
+import com.marblevhs.clairsavedimages.di.AppComponent
 import com.ortiz.touchview.OnTouchImageViewListener
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
+val Context.appComponent: AppComponent
+    get() = when(this){
+        is MainApp -> appComponent
+        else -> this.applicationContext.appComponent
+    }
 
 class ImageDetailsFragment : Fragment() {
 
     private var binding: ImageDetailsFragmentBinding? = null
     private var shortAnimationDuration: Int = 0
     private var bottomNavView: BottomNavigationView? = null
-    private val viewModel: MainViewModel by activityViewModels()
+    private val viewModel: MainViewModel by activityViewModels{ viewModelFactory }
     companion object {
         fun newInstance() = ImageDetailsFragment()
     }
 
+    @Inject
+    lateinit var viewModelFactory: MainViewModel.Factory
+
+    override fun onAttach(context: Context) {
+        context.appComponent.inject(this)
+        super.onAttach(context)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -53,17 +72,23 @@ class ImageDetailsFragment : Fragment() {
         bottomNavView?.visibility = View.GONE
         initListeners()
         shortAnimationDuration = resources.getInteger(android.R.integer.config_shortAnimTime)
-        lifecycleScope.launchWhenStarted{
-            viewModel.detailsUiState.replayCache
-            viewModel.detailsUiState.collect{
-                when (it) {
-                    is ImageDetailsUiState.Success -> updateUi(it.image, it.isLiked)
-                    is ImageDetailsUiState.Error -> {
-                        setLoading(isLoading = false)
-                        Toast.makeText(activity, "Network error! Check your connection and try again.", Toast.LENGTH_LONG).show()
-                        Log.e("RESP", it.exception.message ?: "0")
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.detailsUiState.replayCache
+                viewModel.detailsUiState.collect {
+                    when (it) {
+                        is ImageDetailsUiState.Success -> updateUi(it.image, it.isLiked)
+                        is ImageDetailsUiState.Error -> {
+                            setLoading(isLoading = false)
+                            Toast.makeText(
+                                activity,
+                                "Network error! Check your connection and try again.",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            Log.e("RESP", it.exception.message ?: "0")
+                        }
+                        is ImageDetailsUiState.LoadingState -> setLoading(isLoading = true)
                     }
-                    is ImageDetailsUiState.LoadingState -> setLoading(isLoading = true)
                 }
             }
         }
@@ -117,7 +142,7 @@ class ImageDetailsFragment : Fragment() {
     }
 
     private fun favouritesButtonClicked(){
-//        TODO: implement
+        viewModel.favouritesButtonClicked()
     }
 
     private fun fadeToVisible() {
@@ -169,12 +194,16 @@ class ImageDetailsFragment : Fragment() {
     }
 
 
-    private var curImage: Image = Image("", sizes = listOf(Size(type = "x", "https://thiscatdoesnotexist.com/")), height = 1, width = 1)
+    private var curImage: LocalImage = LocalImage(id = "",
+        width = 1,
+        height = 1,
+        thumbnailUrl = "",
+        fullSizeUrl = "")
 
-    private fun updateUi(image: Image, isLiked: Boolean) {
+    private fun updateUi(image: LocalImage, isLiked: Boolean) {
         if(image.id != "") {
             curImage = image
-            binding?.ivSelectedImage?.load(image.sizes[image.sizes.size - 1].imageUrl) {
+            binding?.ivSelectedImage?.load(image.fullSizeUrl) {
                 crossfade(true)
                 placeholder(R.drawable.ic_download_progress)
                 error(R.drawable.ic_download_error)

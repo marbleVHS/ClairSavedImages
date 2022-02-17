@@ -1,5 +1,6 @@
 package com.marblevhs.clairsavedimages.favouritesList
 
+import android.content.Context
 import android.content.res.Resources
 import android.os.Bundle
 import android.util.Log
@@ -13,25 +14,45 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.marblevhs.clairsavedimages.FavouritesListUiState
+import com.marblevhs.clairsavedimages.MainApp
 import com.marblevhs.clairsavedimages.MainViewModel
 import com.marblevhs.clairsavedimages.R
-import com.marblevhs.clairsavedimages.data.Image
+import com.marblevhs.clairsavedimages.data.LocalImage
 import com.marblevhs.clairsavedimages.databinding.FavouritesListFragmentBinding
+import com.marblevhs.clairsavedimages.di.AppComponent
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
+val Context.appComponent: AppComponent
+    get() = when(this){
+        is MainApp -> appComponent
+        else -> this.applicationContext.appComponent
+    }
 
 class FavouritesListFragment : Fragment() {
 
-    private val viewModel: MainViewModel by activityViewModels()
+    private val viewModel: MainViewModel by activityViewModels{ viewModelFactory }
     private var binding: FavouritesListFragmentBinding? = null
     private var bottomNavView: BottomNavigationView? = null
     private var revUi: Int = 1
     private val adapter: FavouritesListAdapter = FavouritesListAdapter() { image -> adapterOnClick(image) }
+
+
+    @Inject
+    lateinit var viewModelFactory: MainViewModel.Factory
+
+    override fun onAttach(context: Context) {
+        context.appComponent.inject(this)
+        super.onAttach(context)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -43,32 +64,33 @@ class FavouritesListFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         handleSystemInsets(view)
-        fixSwipeRefreshLayout()
         bottomNavView?.visibility = View.VISIBLE
 //        viewModel.initImages(revUi)
 //        TODO:dfsdfsfd
         binding?.rvImages?.adapter = adapter
         binding?.rvImages?.layoutManager =
             StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL)
+        binding?.swipeRefreshLayout?.setProgressViewOffset(true, 80.toPx.toInt(), 100.toPx.toInt())
+        fixSwipeRefreshLayout()
         initListeners()
-        lifecycleScope.launchWhenStarted{
-            viewModel.favouritesUiState.collect {
-                when (it) {
-                    is FavouritesListUiState.Success -> updateUi(it.images, it.rev)
-                    is FavouritesListUiState.Error -> showError(it.exception.message)
-                    is FavouritesListUiState.InitLoadingState -> {
-                        binding?.listLoader?.visibility = View.VISIBLE
-                    }
-                    is FavouritesListUiState.RefreshLoadingState -> {
-                        binding?.swipeRefreshLayout?.isRefreshing = true
+        viewLifecycleOwner.lifecycleScope.launch{
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.favouritesUiState.collect {
+                    when (it) {
+                        is FavouritesListUiState.Success -> {} /*updateUi(it.images, it.rev)*/
+                        is FavouritesListUiState.Error -> showError(it.exception.message)
+                        is FavouritesListUiState.InitLoadingState -> {
+                            binding?.listLoader?.visibility = View.VISIBLE
+                        }
+                        is FavouritesListUiState.RefreshLoadingState -> {
+                            binding?.swipeRefreshLayout?.isRefreshing = true
+                        }
                     }
                 }
             }
-
         }
-        binding?.swipeRefreshLayout?.setProgressViewOffset(true, 80.toPx.toInt(), 100.toPx.toInt())
-        super.onViewCreated(view, savedInstanceState)
 
     }
 
@@ -104,19 +126,19 @@ class FavouritesListFragment : Fragment() {
         })
     }
 
-    private fun adapterOnClick(image: Image) {
-        viewModel.newImageSelected(image)
+    private fun adapterOnClick(image: LocalImage) {
+//        viewModel.newImageSelected(image)
         findNavController().navigate(FavouritesListFragmentDirections.actionOpenImageDetailsFavouritesList())
     }
 
     private fun showError(errorMessage: String?){
         binding?.listLoader?.visibility = View.INVISIBLE
         binding?.swipeRefreshLayout?.isRefreshing = false
-        Toast.makeText(activity, "Network error", Toast.LENGTH_LONG).show()
+        Toast.makeText(activity, "Network error", Toast.LENGTH_SHORT).show()
         Log.e("RESP", errorMessage ?: "0")
     }
 
-    private fun updateUi(images: List<Image>, rev: Int){
+    private fun updateUi(images: List<LocalImage>, rev: Int){
         revUi = rev
         binding?.listLoader?.visibility = View.INVISIBLE
         binding?.swipeRefreshLayout?.isRefreshing = false

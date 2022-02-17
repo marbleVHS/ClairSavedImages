@@ -1,5 +1,9 @@
 package com.marblevhs.clairsavedimages.data
 
+
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
 
 data class UnhandledImageResponse(
@@ -9,23 +13,40 @@ data class UnhandledImageResponse(
 
 data class ImageResponse(
     @SerializedName("items")
-    val images: List<Image>
+    val images: List<JsonImage>
 )
 
-data class Image(
+
+data class JsonImage(
     @SerializedName("id")
     val id: String,
-    @SerializedName("width")
-    val width: Int,
-    @SerializedName("height")
-    val height: Int,
     @SerializedName("sizes")
     val sizes: List<Size>
 )
 
+
 data class Size(
     @SerializedName("type")
     val type: String,
+    @SerializedName("width")
+    val width: Int,
+    @SerializedName("height")
+    val height: Int,
     @SerializedName("url")
     val imageUrl: String
+)
+
+@Entity(tableName = "LocalImage")
+data class LocalImage(
+    @PrimaryKey
+    @ColumnInfo(name = "id")
+    val id: String,
+    @ColumnInfo(name = "width")
+    val width: Int,
+    @ColumnInfo(name ="height")
+    val height: Int,
+    @ColumnInfo(name = "thumbnailUrl")
+    val thumbnailUrl: String,
+    @ColumnInfo(name = "fullSizeUrl")
+    val fullSizeUrl: String
 )

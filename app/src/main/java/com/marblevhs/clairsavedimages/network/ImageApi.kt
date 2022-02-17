@@ -2,22 +2,11 @@ package com.marblevhs.clairsavedimages.network
 
 import com.marblevhs.clairsavedimages.data.UnhandledImageResponse
 import com.marblevhs.clairsavedimages.data.UnhandledLikeResponse
-import retrofit2.create
 import retrofit2.http.GET
 import retrofit2.http.Query
 
-class ApiProvider {
-    fun getApi(): Api {
-        return RetrofitProvider().getRetrofit().create()
-    }
 
-    companion object{
-        fun newInstance() = ApiProvider()
-    }
-}
-
-
-interface Api {
+interface ImageApi {
     @GET("method/photos.get")
     suspend fun requestImages(
         @Query("owner_id") ownerId: String,
