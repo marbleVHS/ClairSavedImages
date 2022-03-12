@@ -17,10 +17,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import coil.load
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.marblevhs.clairsavedimages.ImageDetailsUiState
-import com.marblevhs.clairsavedimages.MainApp
-import com.marblevhs.clairsavedimages.MainViewModel
-import com.marblevhs.clairsavedimages.R
+import com.google.android.material.snackbar.Snackbar
+import com.marblevhs.clairsavedimages.*
 import com.marblevhs.clairsavedimages.data.LocalImage
 import com.marblevhs.clairsavedimages.databinding.ImageDetailsFragmentBinding
 import com.marblevhs.clairsavedimages.di.AppComponent
@@ -74,17 +72,19 @@ class ImageDetailsFragment : Fragment() {
         shortAnimationDuration = resources.getInteger(android.R.integer.config_shortAnimTime)
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.detailsUiState.replayCache
+//                viewModel.detailsUiState.replayCache
                 viewModel.detailsUiState.collect {
                     when (it) {
-                        is ImageDetailsUiState.Success -> updateUi(it.image, it.isLiked)
+                        is ImageDetailsUiState.Success -> updateUi(it.image, it.isLiked, it.isFav)
                         is ImageDetailsUiState.Error -> {
                             setLoading(isLoading = false)
-                            Toast.makeText(
-                                activity,
+                            Snackbar.make(
+                                binding?.root as View,
                                 "Network error! Check your connection and try again.",
-                                Toast.LENGTH_SHORT
+                                Snackbar.LENGTH_SHORT
                             ).show()
+                            binding?.likeButton?.isClickable = false
+                            binding?.favouritesButton?.isClickable = false
                             Log.e("RESP", it.exception.message ?: "0")
                         }
                         is ImageDetailsUiState.LoadingState -> setLoading(isLoading = true)
@@ -194,13 +194,17 @@ class ImageDetailsFragment : Fragment() {
     }
 
 
-    private var curImage: LocalImage = LocalImage(id = "",
+    private var curImage: LocalImage = LocalImage(
+        id = "",
+        ownerId = "",
+        album = "",
         width = 1,
         height = 1,
         thumbnailUrl = "",
-        fullSizeUrl = "")
+        fullSizeUrl = ""
+    )
 
-    private fun updateUi(image: LocalImage, isLiked: Boolean) {
+    private fun updateUi(image: LocalImage, isLiked: Boolean, isFav: Boolean) {
         if(image.id != "") {
             curImage = image
             binding?.ivSelectedImage?.load(image.fullSizeUrl) {
@@ -209,9 +213,15 @@ class ImageDetailsFragment : Fragment() {
                 error(R.drawable.ic_download_error)
             }
             updateIsLiked(isLiked)
+            updateIsFav(isFav)
             binding?.likeButton?.isClickable = true
+            binding?.favouritesButton?.isClickable = true
             setLoading(false)
         }
+    }
+
+    private fun updateIsFav(isFav: Boolean){
+        binding?.favouritesButton?.isChecked = isFav
     }
 
     private fun updateIsLiked(isLiked: Boolean){

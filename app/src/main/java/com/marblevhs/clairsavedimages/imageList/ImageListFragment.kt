@@ -9,18 +9,20 @@ import android.view.LayoutInflater
 import androidx.fragment.app.Fragment
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
+import androidx.paging.LoadState
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.snackbar.Snackbar
 import com.marblevhs.clairsavedimages.ImageListUiState
 import com.marblevhs.clairsavedimages.MainApp
 import com.marblevhs.clairsavedimages.MainViewModel
@@ -28,6 +30,8 @@ import com.marblevhs.clairsavedimages.R
 import com.marblevhs.clairsavedimages.data.LocalImage
 import com.marblevhs.clairsavedimages.databinding.ImageListFragmentBinding
 import com.marblevhs.clairsavedimages.di.AppComponent
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
 
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -44,6 +48,7 @@ class ImageListFragment : Fragment() {
     private var binding: ImageListFragmentBinding? = null
     private var bottomNavView: BottomNavigationView? = null
     private var revUi: Int = 1
+    private var albumUi: String = "saved"
     private var shortAnimationDuration: Int = 0
     private val adapter: ImageListAdapter = ImageListAdapter() { image -> adapterOnClick(image) }
 
@@ -68,26 +73,51 @@ class ImageListFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         shortAnimationDuration = resources.getInteger(android.R.integer.config_shortAnimTime)
         handleSystemInsets(view)
-        fixSwipeRefreshLayout()
+        binding?.listLoader?.isVisible = viewModel.firstImagesInit
         bottomNavView?.visibility = View.VISIBLE
         viewModel.initImages(revUi)
-        binding?.rvImages?.adapter = adapter
+        binding?.rvImages?.adapter = adapter.withLoadStateHeaderAndFooter(
+            header = ImageListLoaderStateAdapter(),
+            footer = ImageListLoaderStateAdapter()
+        )
         binding?.rvImages?.layoutManager =
             StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL)
-        initListeners()
+        fixSwipeRefreshLayout()
         binding?.swipeRefreshLayout?.setProgressViewOffset(true, 80.toPx.toInt(), 130.toPx.toInt())
+        initListeners()
         viewLifecycleOwner.lifecycleScope.launch{
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED){
-                viewModel.listUiState.collect {
-                    when (it) {
-                        is ImageListUiState.Success -> updateUi(it.images, it.rev, it.album)
-                        is ImageListUiState.Error -> showError(it.exception.message)
-                        is ImageListUiState.InitLoadingState -> {
-                            binding?.listLoader?.visibility = View.VISIBLE
+            launch {
+                viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                    viewModel.listUiState.collect {
+                        when (it) {
+                            is ImageListUiState.Success -> {
+                                updateUi(it.rev, it.album)
+                            }
+                            is ImageListUiState.Error -> showError(it.exception.message)
+                            else -> {}
                         }
-                        is ImageListUiState.RefreshLoadingState -> {
+                    }
+                }
+            }
+            launch {
+                viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED){
+                    viewModel.images.collectLatest {
+                        adapter.submitData(it)
+//                        binding?.rvImages?.visibility = View.VISIBLE
+                    }
+                }
+            }
+            launch{
+                adapter.loadStateFlow.collectLatest { loadStates ->
+                    if(loadStates.refresh == LoadState.Loading){
+                        if(!viewModel.firstImagesInit){
                             binding?.swipeRefreshLayout?.isRefreshing = true
                         }
+                    } else {
+                        delay(200)
+                        binding?.swipeRefreshLayout?.isRefreshing = false
+                        binding?.listLoader?.visibility = View.GONE
+                        viewModel.firstImagesInit = false
                     }
                 }
             }
@@ -131,28 +161,27 @@ class ImageListFragment : Fragment() {
     }
 
     private fun showError(errorMessage: String?){
-        binding?.listLoader?.visibility = View.INVISIBLE
         binding?.swipeRefreshLayout?.isRefreshing = false
-        Toast.makeText(activity, "Network error", Toast.LENGTH_SHORT).show()
+        Snackbar.make(binding?.coordinatorLayout as View,"Network error", Snackbar.LENGTH_SHORT)
+            .show()
         Log.e("RESP", errorMessage ?: "0")
     }
 
-    private fun updateUi(images: List<LocalImage>, rev: Int, album: String){
+
+    private fun updateUi(rev: Int, album: String){
         revUi = rev
-        binding?.listLoader?.visibility = View.INVISIBLE
-        binding?.swipeRefreshLayout?.isRefreshing = false
+        albumUi = album
         if (album == "saved"){
             binding?.appbar?.title = "Claire saved pictures"
         } else {
             binding?.appbar?.title = "Claire public pictures"
         }
-        adapter.submitList(images)
     }
 
     private fun initListeners(){
         val swipeRefreshLayout = binding?.swipeRefreshLayout
         swipeRefreshLayout?.setOnRefreshListener{
-            viewModel.loadImages(revUi)
+            adapter.refresh()
         }
         binding?.appbar?.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
@@ -168,7 +197,7 @@ class ImageListFragment : Fragment() {
                     true
                 }
                 R.id.menu_refresh -> {
-                    viewModel.loadImages(revUi)
+                    adapter.refresh()
                     true
                 }
                 R.id.menu_switch -> {

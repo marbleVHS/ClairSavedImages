@@ -8,8 +8,8 @@ import android.widget.ImageView
 import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
+import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import com.marblevhs.clairsavedimages.R
@@ -18,7 +18,7 @@ import com.marblevhs.clairsavedimages.data.LocalImage
 
 
 
-class ImageListAdapter(private val onClick: (LocalImage) -> Unit): ListAdapter<LocalImage, ImageListAdapter.ViewHolder>(
+class ImageListAdapter(private val onClick: (LocalImage) -> Unit): PagingDataAdapter<LocalImage, ImageListAdapter.ViewHolder>(
     ImageDiffCallback
 ){
 
@@ -62,13 +62,16 @@ class ImageListAdapter(private val onClick: (LocalImage) -> Unit): ListAdapter<L
             return oldItem.id == newItem.id
         }
 
+
     }
 
 
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val image = getItem(position)
-        holder.bind(image)
+        if (image != null) {
+            holder.bind(image)
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {

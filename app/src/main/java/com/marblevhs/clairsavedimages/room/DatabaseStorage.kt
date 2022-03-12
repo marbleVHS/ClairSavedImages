@@ -13,7 +13,7 @@ interface ImageDao {
     val allImage: List<LocalImage>
 
     @Query("SELECT * FROM LocalImage where id = :imageId")
-    fun getImageByImageId(imageId: Int): LocalImage
+    fun getImageByImageId(imageId: String): LocalImage?
 }
 
 @Database(entities = [LocalImage::class], version = 1)

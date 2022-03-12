@@ -18,6 +18,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        DynamicColors.applyIfAvailable(this)
         setContentView(R.layout.main_activity)
         WindowCompat.setDecorFitsSystemWindows(window, false)
         val bottomNavBar = findViewById<BottomNavigationView>(R.id.bottomNavBar)
@@ -25,12 +26,11 @@ class MainActivity : AppCompatActivity() {
         val navController = navHostFragment.navController
         bottomNavBar.labelVisibilityMode = NavigationBarView.LABEL_VISIBILITY_SELECTED
         bottomNavBar.setupWithNavController(navController)
-        DynamicColors.applyIfAvailable(this)
     }
 
 
 
-    private fun hideSystemBars() {
+    fun hideSystemBars() {
         val windowInsetsController =
             ViewCompat.getWindowInsetsController(window.decorView) ?: return
         windowInsetsController.systemBarsBehavior =

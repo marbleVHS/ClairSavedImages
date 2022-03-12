@@ -1,10 +1,9 @@
 package com.marblevhs.clairsavedimages.favouritesList
 
+import android.annotation.SuppressLint
 import android.content.Context
-import android.content.res.Resources
 import android.os.Bundle
 import android.util.Log
-import android.util.TypedValue
 import android.view.LayoutInflater
 import androidx.fragment.app.Fragment
 import android.view.View
@@ -18,7 +17,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.marblevhs.clairsavedimages.FavouritesListUiState
@@ -67,26 +65,19 @@ class FavouritesListFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         handleSystemInsets(view)
         bottomNavView?.visibility = View.VISIBLE
-//        viewModel.initImages(revUi)
-//        TODO:dfsdfsfd
+        viewModel.initFavs(revUi)
         binding?.rvImages?.adapter = adapter
         binding?.rvImages?.layoutManager =
             StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL)
-        binding?.swipeRefreshLayout?.setProgressViewOffset(true, 80.toPx.toInt(), 100.toPx.toInt())
-        fixSwipeRefreshLayout()
         initListeners()
         viewLifecycleOwner.lifecycleScope.launch{
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.favouritesUiState.collect {
                     when (it) {
-                        is FavouritesListUiState.Success -> {} /*updateUi(it.images, it.rev)*/
+                        is FavouritesListUiState.Success -> {
+                            updateUi(it.images, it.rev)
+                        }
                         is FavouritesListUiState.Error -> showError(it.exception.message)
-                        is FavouritesListUiState.InitLoadingState -> {
-                            binding?.listLoader?.visibility = View.VISIBLE
-                        }
-                        is FavouritesListUiState.RefreshLoadingState -> {
-                            binding?.swipeRefreshLayout?.isRefreshing = true
-                        }
                     }
                 }
             }
@@ -107,67 +98,35 @@ class FavouritesListFragment : Fragment() {
     }
 
 
-    private fun fixSwipeRefreshLayout(){
-        val recyclerView = binding?.rvImages
-        val swipeRefreshLayout = binding?.swipeRefreshLayout
-        recyclerView?.addOnScrollListener(object : RecyclerView.OnScrollListener() {
 
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                val topRowVerticalPosition =
-                    if (recyclerView == null || recyclerView.getChildCount() === 0) 0 else recyclerView.getChildAt(
-                        0
-                    ).getTop()
-                swipeRefreshLayout?.setEnabled(topRowVerticalPosition >= 0)
-            }
-
-            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                super.onScrollStateChanged(recyclerView, newState)
-            }
-        })
-    }
 
     private fun adapterOnClick(image: LocalImage) {
-//        viewModel.newImageSelected(image)
+        viewModel.newImageSelected(image)
         findNavController().navigate(FavouritesListFragmentDirections.actionOpenImageDetailsFavouritesList())
     }
 
     private fun showError(errorMessage: String?){
-        binding?.listLoader?.visibility = View.INVISIBLE
-        binding?.swipeRefreshLayout?.isRefreshing = false
         Toast.makeText(activity, "Network error", Toast.LENGTH_SHORT).show()
         Log.e("RESP", errorMessage ?: "0")
     }
 
     private fun updateUi(images: List<LocalImage>, rev: Int){
         revUi = rev
-        binding?.listLoader?.visibility = View.INVISIBLE
-        binding?.swipeRefreshLayout?.isRefreshing = false
         adapter.submitList(images)
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun initListeners(){
-        val swipeRefreshLayout = binding?.swipeRefreshLayout
-        swipeRefreshLayout?.setOnRefreshListener{
-//            viewModel.loadImages(revUi)
-//            TODO:dfsfdsf
-            swipeRefreshLayout.isRefreshing = false
-        }
         binding?.appbar?.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.menu_sort -> {
-                    if(revUi == 1){
-                        revUi = 0
+                    revUi = if(revUi == 1){
+                        0
                     } else {
-                        revUi = 1
+                        1
                     }
-//                    viewModel.loadImages(revUi)
-//                    TODO:dfsfsdf
-                    binding?.rvImages?.scrollToPosition(0)
-                    true
-                }
-                R.id.menu_refresh -> {
-//                    viewModel.loadImages(revUi)
-//                    TODO:dfsfdsdfsdf
+                    adapter.submitList(emptyList())
+                    viewModel.loadFavs(revUi)
                     true
                 }
                 R.id.info -> {
@@ -177,10 +136,7 @@ class FavouritesListFragment : Fragment() {
             }
         }
     }
-    val Number.toPx get() = TypedValue.applyDimension(
-        TypedValue.COMPLEX_UNIT_DIP,
-        this.toFloat(),
-        Resources.getSystem().displayMetrics)
+
 
     companion object {
         fun newInstance() = FavouritesListFragment()

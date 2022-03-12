@@ -36,11 +36,17 @@ data class Size(
     val imageUrl: String
 )
 
-@Entity(tableName = "LocalImage")
+@Entity(
+    tableName = "LocalImage",
+    primaryKeys = ["id", "ownerId", "album"]
+)
 data class LocalImage(
-    @PrimaryKey
     @ColumnInfo(name = "id")
     val id: String,
+    @ColumnInfo(name = "ownerId")
+    val ownerId: String,
+    @ColumnInfo(name = "album")
+    val album: String,
     @ColumnInfo(name = "width")
     val width: Int,
     @ColumnInfo(name ="height")

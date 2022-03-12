@@ -39,12 +39,16 @@
         <entry key="..\:/Users/marbleVHS/AndroidStudioProjects/ClairSavedImages/app/src/main/res/layout/image_details_fragment.xml" value="0.5" />
         <entry key="..\:/Users/marbleVHS/AndroidStudioProjects/ClairSavedImages/app/src/main/res/layout/image_list_fragment.xml" value="0.22" />
         <entry key="..\:/Users/marbleVHS/AndroidStudioProjects/ClairSavedImages/app/src/main/res/layout/image_view.xml" value="0.22" />
+        <entry key="..\:/Users/marbleVHS/AndroidStudioProjects/ClairSavedImages/app/src/main/res/layout/item_error.xml" value="0.24048913043478262" />
+        <entry key="..\:/Users/marbleVHS/AndroidStudioProjects/ClairSavedImages/app/src/main/res/layout/item_progress.xml" value="0.24048913043478262" />
         <entry key="..\:/Users/marbleVHS/AndroidStudioProjects/ClairSavedImages/app/src/main/res/layout/main_activity.xml" value="0.297554347826087" />
         <entry key="..\:/Users/marbleVHS/AndroidStudioProjects/ClairSavedImages/app/src/main/res/layout/main_fragment.xml" value="0.2821557971014493" />
         <entry key="..\:/Users/marbleVHS/AndroidStudioProjects/ClairSavedImages/app/src/main/res/layout/switch_item.xml" value="2.0" />
+        <entry key="..\:/Users/marbleVHS/AndroidStudioProjects/ClairSavedImages/app/src/main/res/menu/favourites_top_menu.xml" value="0.35104166666666664" />
         <entry key="..\:/Users/marbleVHS/AndroidStudioProjects/ClairSavedImages/app/src/main/res/menu/image_list_menu.xml" value="0.35208333333333336" />
         <entry key="..\:/Users/marbleVHS/AndroidStudioProjects/ClairSavedImages/app/src/main/res/menu/lists_top_menu.xml" value="0.35208333333333336" />
         <entry key="..\:/Users/marbleVHS/AndroidStudioProjects/ClairSavedImages/app/src/main/res/menu/nav_bar_menu.xml" value="0.2265625" />
+        <entry key="..\:/Users/marbleVHS/AndroidStudioProjects/ClairSavedImages/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.186" />
       </map>
     </option>
   </component>
