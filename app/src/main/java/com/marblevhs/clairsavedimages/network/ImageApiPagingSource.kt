@@ -1,17 +1,17 @@
 package com.marblevhs.clairsavedimages.network
 
-import android.util.Log
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.marblevhs.clairsavedimages.data.LocalImage
 import com.marblevhs.clairsavedimages.data.toLocalImage
-import com.marblevhs.clairsavedimages.secrets.Secrets
+import com.marblevhs.clairsavedimages.notSecrets.NotSecrets
 import retrofit2.HttpException
 import java.lang.IllegalArgumentException
 
 
 class ImageApiPagingSource(
     private val imageApi: ImageApi,
+    private val accessToken: String,
     private val query: String): PagingSource<Int, LocalImage>() {
 
     override fun getRefreshKey(state: PagingState<Int, LocalImage>): Int? {
@@ -29,22 +29,22 @@ class ImageApiPagingSource(
             var rev = 1
             when (query) {
                 "saved_ascendant" -> {
-                    ownerId = Secrets.CLAIR_ID
+                    ownerId = NotSecrets.CLAIR_ID
                     albumId = "saved"
                     rev = 0
                 }
                 "saved_descendant" -> {
-                    ownerId = Secrets.CLAIR_ID
+                    ownerId = NotSecrets.CLAIR_ID
                     albumId = "saved"
                     rev = 1
                 }
                 "public_ascendant" -> {
-                    ownerId = Secrets.PUBLIC_ID
+                    ownerId = NotSecrets.PUBLIC_ID
                     albumId = "wall"
                     rev = 0
                 }
                 "public_descendant" -> {
-                    ownerId = Secrets.PUBLIC_ID
+                    ownerId = NotSecrets.PUBLIC_ID
                     albumId = "wall"
                     rev = 1
                 }
@@ -56,7 +56,7 @@ class ImageApiPagingSource(
                 rev = rev,
                 count = pageSize,
                 offset = pageSize*(pageNumber - 1),
-                accessToken = Secrets.ACCESS_TOKEN).imageResponse.images.map{
+                accessToken = accessToken).imageResponse.images.map{
                     it.toLocalImage(ownerId = ownerId, album = albumId)
                 }
             val nextPageNumber = if (images.isEmpty()) null else pageNumber + 1

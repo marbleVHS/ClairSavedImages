@@ -3,6 +3,7 @@ package com.marblevhs.clairsavedimages
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.marblevhs.clairsavedimages.data.Album
@@ -13,16 +14,14 @@ import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
 
-class MainViewModel (private val repo: Repo): ViewModel() {
+class MainViewModel(private val repo: Repo) : ViewModel() {
 
     @Suppress("UNCHECKED_CAST")
-    class Factory @Inject constructor(private val repo: Repo): ViewModelProvider.Factory{
+    class Factory @Inject constructor(private val repo: Repo) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             return MainViewModel(repo = repo) as T
         }
     }
-
-
 
 
     private var albumState = Album.CLAIR
@@ -33,18 +32,46 @@ class MainViewModel (private val repo: Repo): ViewModel() {
         width = 1,
         height = 1,
         thumbnailUrl = "",
-        fullSizeUrl = "")
+        fullSizeUrl = ""
+    )
     var firstImagesInit = true
     var firstFavouritesInit = true
 
+    fun getIsLogged() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val isLogged = repo.getIsLogged()
+            _isLoggedFlow.value = isLogged
+        }
+    }
 
-    private val detailsDefaultState = ImageDetailsUiState.Success(isLiked = false, isFav = false,
-        image = imageInstance)
+    fun clearLoginData() {
+        viewModelScope.launch(Dispatchers.IO) {
+            repo.clearLoginData()
+            getIsLogged()
+        }
+    }
+
+    fun saveAccessToken(accessKey: String){
+        viewModelScope.launch(Dispatchers.IO) {
+            repo.saveAccessToken(accessKey)
+            getIsLogged()
+        }
+    }
+
+    private val _isLoggedFlow = MutableStateFlow(value = false)
+    val isLoggedFlow: StateFlow<Boolean> = _isLoggedFlow.asStateFlow()
+
+    private val detailsDefaultState = ImageDetailsUiState.Success(
+        isLiked = false, isFav = false,
+        image = imageInstance
+    )
     private val _detailsUiState = MutableStateFlow<ImageDetailsUiState>(detailsDefaultState)
     val detailsUiState: StateFlow<ImageDetailsUiState> = _detailsUiState.asStateFlow()
 
     private val detailsExceptionHandler: CoroutineExceptionHandler =
-        CoroutineExceptionHandler { _, throwable -> _detailsUiState.value = ImageDetailsUiState.Error(throwable)}
+        CoroutineExceptionHandler { _, throwable ->
+            _detailsUiState.value = ImageDetailsUiState.Error(throwable)
+        }
     private val detailsCoroutineScope =
         CoroutineScope(SupervisorJob() + detailsExceptionHandler)
 
@@ -54,7 +81,9 @@ class MainViewModel (private val repo: Repo): ViewModel() {
 
 
     private val listExceptionHandler: CoroutineExceptionHandler =
-        CoroutineExceptionHandler { _, throwable -> _listUiState.value = ImageListUiState.Error(throwable)}
+        CoroutineExceptionHandler { _, throwable ->
+            _listUiState.value = ImageListUiState.Error(throwable)
+        }
     private val listCoroutineScope =
         CoroutineScope(SupervisorJob() + listExceptionHandler)
 
@@ -63,20 +92,22 @@ class MainViewModel (private val repo: Repo): ViewModel() {
     val favouritesUiState: StateFlow<FavouritesListUiState> = _favouritesUiState.asStateFlow()
 
     private val favouritesExceptionHandler: CoroutineExceptionHandler =
-        CoroutineExceptionHandler { _, throwable -> _favouritesUiState.value = FavouritesListUiState.Error(throwable)}
+        CoroutineExceptionHandler { _, throwable ->
+            _favouritesUiState.value = FavouritesListUiState.Error(throwable)
+        }
     private val favouritesCoroutineScope =
         CoroutineScope(SupervisorJob() + favouritesExceptionHandler)
 
-    fun newImageSelected(image: LocalImage){
+    fun newImageSelected(image: LocalImage) {
         detailsCoroutineScope.launch {
             _detailsUiState.value = ImageDetailsUiState.LoadingState
             val isLiked = repo.getIsLiked(itemId = image.id, ownerId = image.ownerId)
             val isFav = repo.getIsFav(itemId = image.id, ownerId = image.ownerId)
             imageInstance = image
-            _detailsUiState.value = ImageDetailsUiState.Success(isLiked = isLiked, isFav = isFav,image = image)
+            _detailsUiState.value =
+                ImageDetailsUiState.Success(isLiked = isLiked, isFav = isFav, image = image)
         }
     }
-
 
 
     private val _query = MutableStateFlow("")
@@ -85,7 +116,9 @@ class MainViewModel (private val repo: Repo): ViewModel() {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val images: StateFlow<PagingData<LocalImage>> = query
-        .flatMapLatest { queryString -> repo.getImagesPaging(queryString).cachedIn(listCoroutineScope) }
+        .flatMapLatest { queryString ->
+            repo.getImagesPaging(queryString).cachedIn(listCoroutineScope)
+        }
         .stateIn(listCoroutineScope, SharingStarted.Eagerly, PagingData.empty())
 
     private fun setQuery(query: String, rev: Int) {
@@ -93,16 +126,16 @@ class MainViewModel (private val repo: Repo): ViewModel() {
         _listUiState.value = ImageListUiState.Success(rev = rev, album = albumState.albumId)
     }
 
-    fun initImages(rev: Int){
-        if(firstImagesInit) {
+    fun initImages(rev: Int) {
+        if (firstImagesInit) {
             listCoroutineScope.launch {
                 var queryString = ""
-                queryString += if(albumState.albumId == "saved"){
+                queryString += if (albumState.albumId == "saved") {
                     "saved"
                 } else {
                     "public"
                 }
-                queryString += if(rev == 1){
+                queryString += if (rev == 1) {
                     "_descendant"
                 } else {
                     "_ascendant"
@@ -113,73 +146,95 @@ class MainViewModel (private val repo: Repo): ViewModel() {
     }
 
 
-
-    fun switchAlbumState(rev: Int){
-        albumState = if(albumState == Album.CLAIR){
+    fun switchAlbumState(rev: Int) {
+        albumState = if (albumState == Album.CLAIR) {
             Album.PUBLIC
-        } else{
+        } else {
             Album.CLAIR
         }
         loadImages(rev = rev)
     }
 
-    fun loadImages(rev: Int){
+    fun loadImages(rev: Int) {
         listCoroutineScope.launch {
             var queryString = ""
-                queryString += if(albumState.albumId == "saved"){
-                    "saved"
-                } else {
-                    "public"
-                }
-                queryString += if(rev == 1){
-                    "_descendant"
-                } else {
-                    "_ascendant"
-                }
-                setQuery(query = queryString, rev = rev)
+            queryString += if (albumState.albumId == "saved") {
+                "saved"
+            } else {
+                "public"
+            }
+            queryString += if (rev == 1) {
+                "_descendant"
+            } else {
+                "_ascendant"
+            }
+            setQuery(query = queryString, rev = rev)
 
         }
     }
 
-    fun likeButtonClicked(){
+    fun likeButtonClicked() {
         detailsCoroutineScope.launch {
-            var isLiked = repo.getIsLiked(itemId = imageInstance.id, ownerId = imageInstance.ownerId)
+            var isLiked =
+                repo.getIsLiked(itemId = imageInstance.id, ownerId = imageInstance.ownerId)
             val isFav = repo.getIsFav(imageInstance.id, imageInstance.ownerId)
-            if(isLiked){
-                launch { repo.deleteLike(itemId = imageInstance.id, ownerId = imageInstance.ownerId) }
+            if (isLiked) {
+                launch {
+                    repo.deleteLike(
+                        itemId = imageInstance.id,
+                        ownerId = imageInstance.ownerId
+                    )
+                }
                 isLiked = !isLiked
                 _detailsUiState.value =
-                    ImageDetailsUiState.Success(isLiked = isLiked, isFav = isFav, image =  imageInstance)
+                    ImageDetailsUiState.Success(
+                        isLiked = isLiked,
+                        isFav = isFav,
+                        image = imageInstance
+                    )
             } else {
                 launch { repo.addLike(itemId = imageInstance.id, ownerId = imageInstance.ownerId) }
                 isLiked = !isLiked
                 _detailsUiState.value =
-                    ImageDetailsUiState.Success(isLiked = isLiked, isFav = isFav, image =  imageInstance)
+                    ImageDetailsUiState.Success(
+                        isLiked = isLiked,
+                        isFav = isFav,
+                        image = imageInstance
+                    )
             }
         }
     }
 
-    fun favouritesButtonClicked(){
+    fun favouritesButtonClicked() {
         detailsCoroutineScope.launch {
-            val isLiked = repo.getIsLiked(itemId = imageInstance.id, ownerId = imageInstance.ownerId)
+            val isLiked =
+                repo.getIsLiked(itemId = imageInstance.id, ownerId = imageInstance.ownerId)
             var isFav = repo.getIsFav(imageInstance.id, imageInstance.ownerId)
-            if(isFav){
+            if (isFav) {
                 launch { repo.deleteFav(imageInstance) }
                 isFav = !isFav
                 _detailsUiState.value =
-                    ImageDetailsUiState.Success(isLiked = isLiked, isFav = isFav, image =  imageInstance)
+                    ImageDetailsUiState.Success(
+                        isLiked = isLiked,
+                        isFav = isFav,
+                        image = imageInstance
+                    )
             } else {
                 launch { repo.addFav(imageInstance) }
                 isFav = !isFav
                 _detailsUiState.value =
-                    ImageDetailsUiState.Success(isLiked = isLiked, isFav = isFav, image =  imageInstance)
+                    ImageDetailsUiState.Success(
+                        isLiked = isLiked,
+                        isFav = isFav,
+                        image = imageInstance
+                    )
             }
         }
     }
 
-    fun initFavs(revUi: Int){
+    fun initFavs(revUi: Int) {
         var rev = revUi
-        if(firstFavouritesInit) {
+        if (firstFavouritesInit) {
             favouritesCoroutineScope.launch {
                 val favs = repo.getFavs(rev)
                 _favouritesUiState.value = FavouritesListUiState.Success(images = favs, rev = rev)
@@ -194,7 +249,7 @@ class MainViewModel (private val repo: Repo): ViewModel() {
         }
     }
 
-    fun loadFavs(rev: Int){
+    fun loadFavs(rev: Int) {
         favouritesCoroutineScope.launch {
             val favs = repo.getFavs(rev)
             delay(200)
@@ -207,19 +262,21 @@ class MainViewModel (private val repo: Repo): ViewModel() {
 
 
 sealed class ImageListUiState {
-    data class Success(val rev: Int, val album: String): ImageListUiState()
-    data class Error(val exception: Throwable): ImageListUiState()
+    data class Success(val rev: Int, val album: String) : ImageListUiState()
+    data class Error(val exception: Throwable) : ImageListUiState()
     object InitLoadingState : ImageListUiState()
 }
 
 sealed class FavouritesListUiState {
-    data class Success(val images: List<LocalImage>, val rev: Int): FavouritesListUiState()
-    data class Error(val exception: Throwable): FavouritesListUiState()
+    data class Success(val images: List<LocalImage>, val rev: Int) : FavouritesListUiState()
+    data class Error(val exception: Throwable) : FavouritesListUiState()
 }
 
 sealed class ImageDetailsUiState {
-    data class Success(val isLiked: Boolean, val isFav: Boolean, val image: LocalImage): ImageDetailsUiState()
-    data class Error(val exception: Throwable): ImageDetailsUiState()
+    data class Success(val isLiked: Boolean, val isFav: Boolean, val image: LocalImage) :
+        ImageDetailsUiState()
+
+    data class Error(val exception: Throwable) : ImageDetailsUiState()
     object LoadingState : ImageDetailsUiState()
 }
 
