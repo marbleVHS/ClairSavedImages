@@ -79,11 +79,11 @@ class MainActivity : AppCompatActivity() {
 
     private fun updateIsLogged(isLogged: Boolean) {
         if (isLogged) {
-            if (navController.currentDestination?.equals(navController.findDestination(R.id.loginFragment)) == true) {
+            if (navController.currentDestination?.id == R.id.loginFragment) {
                 navController.setGraph(R.navigation.nav_graph)
             }
         } else {
-            if (navController.currentDestination?.equals(navController.findDestination(R.id.loginFragment)) != true) {
+            if (navController.currentDestination?.id != R.id.loginFragment) {
                 val navOptions =
                     NavOptions.Builder().setPopUpTo(R.id.nav_graph, inclusive = true).build()
                 navController.navigate(
