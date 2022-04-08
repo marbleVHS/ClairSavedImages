@@ -6,13 +6,13 @@ import com.marblevhs.clairsavedimages.data.LocalImage
 import com.marblevhs.clairsavedimages.data.toLocalImage
 import com.marblevhs.clairsavedimages.notSecrets.NotSecrets
 import retrofit2.HttpException
-import java.lang.IllegalArgumentException
 
 
 class ImageApiPagingSource(
     private val imageApi: ImageApi,
     private val accessToken: String,
-    private val query: String): PagingSource<Int, LocalImage>() {
+    private val query: String
+) : PagingSource<Int, LocalImage>() {
 
     override fun getRefreshKey(state: PagingState<Int, LocalImage>): Int? {
         val anchorPosition = state.anchorPosition ?: return null
@@ -21,9 +21,9 @@ class ImageApiPagingSource(
     }
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, LocalImage> {
-            val pageNumber = params.key ?: 1
-            val pageSize = params.loadSize.coerceAtMost(999)
-        try{
+        val pageNumber = params.key ?: 1
+        val pageSize = params.loadSize.coerceAtMost(999)
+        try {
             var ownerId = ""
             var albumId = ""
             var rev = 1
@@ -48,22 +48,30 @@ class ImageApiPagingSource(
                     albumId = "wall"
                     rev = 1
                 }
-                else -> {throw IllegalArgumentException("Illegal query argument")}
+                "-1" -> {
+
+                }
+                else -> {
+                    throw IllegalArgumentException("Illegal query argument")
+                }
             }
             val images: List<LocalImage> = imageApi.requestImages(
                 ownerId = ownerId,
                 albumId = albumId,
                 rev = rev,
                 count = pageSize,
-                offset = pageSize*(pageNumber - 1),
-                accessToken = accessToken).imageResponse.images.map{
-                    it.toLocalImage(ownerId = ownerId, album = albumId)
-                }
+                offset = pageSize * (pageNumber - 1),
+                accessToken = accessToken
+            ).imageResponse.images.map {
+                it.toLocalImage(ownerId = ownerId, album = albumId)
+            }
             val nextPageNumber = if (images.isEmpty()) null else pageNumber + 1
             val prevPageNumber = if (pageNumber > 1) pageNumber - 1 else null
-            return LoadResult.Page(data = images,
+            return LoadResult.Page(
+                data = images,
                 nextKey = nextPageNumber,
-                prevKey = prevPageNumber)
+                prevKey = prevPageNumber
+            )
         } catch (e: HttpException) {
             return LoadResult.Error(e)
         } catch (e: Exception) {

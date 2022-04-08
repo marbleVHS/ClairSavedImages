@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/imageListFragment"
+        android:id="@+id/image_list"
         android:enabled="true"
         android:icon="@drawable/ic_baseline_images_36"
         android:title="Pictures"/>
     <item
-        android:id="@+id/favouritesListFragment"
+        android:id="@+id/favourites_list"
         android:enabled="true"
         android:icon="@drawable/ic_baseline_bookmark_36"
         android:title="Favourites"/>

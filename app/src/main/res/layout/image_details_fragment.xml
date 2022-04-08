@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:animateLayoutChanges="true"
     tools:context=".imageDetails.ImageDetailsFragment">
 
 
@@ -30,6 +31,7 @@
         android:minWidth="0dp"
         android:minHeight="0dp"
         android:textIsSelectable="false"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/zoomInButton"
         app:layout_constraintStart_toStartOf="parent" />
@@ -43,6 +45,7 @@
         android:fitsSystemWindows="true"
         android:minWidth="0dp"
         android:minHeight="0dp"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="@+id/zoomInButton"
         app:layout_constraintEnd_toEndOf="@+id/ivSelectedImage"
         app:layout_constraintStart_toEndOf="@+id/zoomInButton"
@@ -60,7 +63,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/likeButton"
-        tools:visibility="visible" />
+        tools:visibility="invisible" />
 
     <ProgressBar
         android:id="@+id/detailsLoader"
