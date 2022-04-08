@@ -3,7 +3,6 @@ package com.marblevhs.clairsavedimages.data
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
-import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
 
 data class UnhandledImageResponse(
@@ -49,7 +48,7 @@ data class LocalImage(
     val album: String,
     @ColumnInfo(name = "width")
     val width: Int,
-    @ColumnInfo(name ="height")
+    @ColumnInfo(name = "height")
     val height: Int,
     @ColumnInfo(name = "thumbnailUrl")
     val thumbnailUrl: String,

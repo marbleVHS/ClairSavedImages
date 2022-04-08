@@ -1,62 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/loginFragment">
+    app:startDestination="@id/image_list">
 
-    <fragment
-        android:id="@+id/imageListFragment"
-        android:name="com.marblevhs.clairsavedimages.imageList.ImageListFragment"
-        android:label="image_list_fragment"
-        tools:layout="@layout/image_list_fragment" >
-        <action
-            android:id="@+id/action_open_imageDetails_imageList"
-            app:destination="@id/imageDetailsFragment"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_exit_anim"
-            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-            app:popExitAnim="@anim/nav_default_pop_exit_anim"
-            app:popUpToInclusive="false" />
-        <action
-            android:id="@+id/action_imageListFragment_to_loginFragment"
-            app:destination="@id/loginFragment"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_exit_anim"
-            app:launchSingleTop="true"
-            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-            app:popExitAnim="@anim/nav_default_pop_exit_anim"
-            app:popUpTo="@id/nav_graph"
-            app:popUpToInclusive="true" />
-    </fragment>
-    <fragment
-        android:id="@+id/imageDetailsFragment"
-        android:name="com.marblevhs.clairsavedimages.imageDetails.ImageDetailsFragment"
-        android:label="image_details_fragment"
-        tools:layout="@layout/image_details_fragment" />
-    <fragment
-        android:id="@+id/favouritesListFragment"
-        android:name="com.marblevhs.clairsavedimages.favouritesList.FavouritesListFragment"
-        android:label="favourites_list_fragment"
-        tools:layout="@layout/favourites_list_fragment" >
-        <action
-            android:id="@+id/action_open_imageDetails_favouritesList"
-            app:destination="@id/imageDetailsFragment"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_exit_anim"
-            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
-    </fragment>
-    <fragment
-        android:id="@+id/loginFragment"
-        android:name="com.marblevhs.clairsavedimages.loginScreen.LoginFragment"
-        android:label="fragment_login"
-        tools:layout="@layout/login_fragment">
-        <action
-            android:id="@+id/action_loginFragment_to_imageListFragment"
-            app:destination="@id/imageListFragment"
-            app:launchSingleTop="true"
-            app:popUpTo="@id/nav_graph"
-            app:popUpToInclusive="false" />
-    </fragment>
+    <include app:graph="@navigation/favourites_list" />
+    <include app:graph="@navigation/login_screen" />
+    <include app:graph="@navigation/image_list" />
+
+
 </navigation>

@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.marblevhs.clairsavedimages.databinding.ItemErrorBinding
 import com.marblevhs.clairsavedimages.databinding.ItemProgressBinding
 
-class ImageListLoaderStateAdapter: LoadStateAdapter<ImageListLoaderStateAdapter.ItemViewHolder>() {
+class ImageListLoaderStateAdapter : LoadStateAdapter<ImageListLoaderStateAdapter.ItemViewHolder>() {
 
     override fun getStateViewType(loadState: LoadState) = when (loadState) {
         is LoadState.NotLoading -> error("Not supported")
@@ -23,7 +23,7 @@ class ImageListLoaderStateAdapter: LoadStateAdapter<ImageListLoaderStateAdapter.
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, loadState: LoadState): ItemViewHolder {
-        return when(loadState) {
+        return when (loadState) {
             LoadState.Loading -> ProgressViewHolder(LayoutInflater.from(parent.context), parent)
             is LoadState.Error -> ErrorViewHolder(LayoutInflater.from(parent.context), parent)
             is LoadState.NotLoading -> error("Not supported")

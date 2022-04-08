@@ -1,68 +1,63 @@
 package com.marblevhs.clairsavedimages.favouritesList
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import by.kirich1409.viewbindingdelegate.viewBinding
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.marblevhs.clairsavedimages.FavouritesListUiState
+import com.google.android.material.snackbar.Snackbar
 import com.marblevhs.clairsavedimages.MainViewModel
 import com.marblevhs.clairsavedimages.R
 import com.marblevhs.clairsavedimages.data.LocalImage
 import com.marblevhs.clairsavedimages.databinding.FavouritesListFragmentBinding
 import com.marblevhs.clairsavedimages.extensions.appComponent
+import com.marblevhs.clairsavedimages.favouritesList.FavouritesListViewModel.FavouritesListUiState
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
-class FavouritesListFragment : Fragment() {
+class FavouritesListFragment : Fragment(R.layout.favourites_list_fragment) {
 
-    private val viewModel: MainViewModel by activityViewModels { viewModelFactory }
-    private var binding: FavouritesListFragmentBinding? = null
+    @Inject
+    lateinit var mainViewModelFactory: MainViewModel.Factory
+
+    @Inject
+    lateinit var viewModelFactory: FavouritesListViewModel.Factory
+
+    private val mainViewModel: MainViewModel by activityViewModels { mainViewModelFactory }
+    private val viewModel: FavouritesListViewModel by viewModels { viewModelFactory }
+    private val binding by viewBinding(FavouritesListFragmentBinding::bind)
     private var bottomNavView: BottomNavigationView? = null
     private var revUi: Int = 1
     private val adapter: FavouritesListAdapter =
-        FavouritesListAdapter() { image -> adapterOnClick(image) }
+        FavouritesListAdapter { image -> adapterOnClick(image) }
 
-
-    @Inject
-    lateinit var viewModelFactory: MainViewModel.Factory
 
     override fun onAttach(context: Context) {
         context.appComponent.inject(this)
         super.onAttach(context)
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        binding = FavouritesListFragmentBinding.inflate(layoutInflater)
-        return binding?.root!!
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         handleSystemInsets(view)
+        bottomNavView = activity?.findViewById(R.id.bottomNavBar)
         bottomNavView?.visibility = View.VISIBLE
         viewModel.initFavs(revUi)
-        binding?.rvImages?.adapter = adapter
-        binding?.rvImages?.layoutManager =
+        binding.rvImages.adapter = adapter
+        binding.rvImages.layoutManager =
             StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL)
         initListeners()
         viewLifecycleOwner.lifecycleScope.launch {
@@ -71,6 +66,9 @@ class FavouritesListFragment : Fragment() {
                     when (it) {
                         is FavouritesListUiState.Success -> {
                             updateUi(it.images, it.rev)
+                        }
+                        is FavouritesListUiState.InitLoadingState -> {
+                            binding.favouritesLoader.visibility = View.VISIBLE
                         }
                         is FavouritesListUiState.Error -> showError(it.exception.message)
                     }
@@ -83,7 +81,7 @@ class FavouritesListFragment : Fragment() {
     private fun handleSystemInsets(view: View) {
         ViewCompat.setOnApplyWindowInsetsListener(view) { _, insets ->
             val sysBarInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            binding?.appbar?.updatePadding(
+            binding.appbar.updatePadding(
                 top = sysBarInsets.top,
                 left = sysBarInsets.left,
                 right = sysBarInsets.right
@@ -94,23 +92,29 @@ class FavouritesListFragment : Fragment() {
 
 
     private fun adapterOnClick(image: LocalImage) {
-        viewModel.newImageSelected(image)
-        findNavController().navigate(FavouritesListFragmentDirections.actionOpenImageDetailsFavouritesList())
+        mainViewModel.newImageSelected(image)
+        findNavController().navigate(FavouritesListFragmentDirections.actionFavouritesListFragmentToImageDetailsFragment2())
     }
 
     private fun showError(errorMessage: String?) {
-        Toast.makeText(activity, "Network error", Toast.LENGTH_SHORT).show()
+        binding.favouritesLoader.visibility = View.GONE
+        Snackbar.make(
+            (binding.coordinatorLayout as View),
+            "Unexpected error :(",
+            Snackbar.LENGTH_SHORT
+        ).show()
         Log.e("RESP", errorMessage ?: "0")
     }
 
     private fun updateUi(images: List<LocalImage>, rev: Int) {
         revUi = rev
         adapter.submitList(images)
+        binding.favouritesLoader.visibility = View.GONE
     }
 
-    @SuppressLint("NotifyDataSetChanged")
+
     private fun initListeners() {
-        binding?.appbar?.setOnMenuItemClickListener { menuItem ->
+        binding.appbar.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.menu_sort -> {
                     revUi = if (revUi == 1) {

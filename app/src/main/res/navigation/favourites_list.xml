@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/favourites_list"
+    app:startDestination="@id/favouritesListFragment">
+
+    <fragment
+        android:id="@+id/favouritesListFragment"
+        android:name="com.marblevhs.clairsavedimages.favouritesList.FavouritesListFragment"
+        android:label="favourites_list_fragment"
+        tools:layout="@layout/favourites_list_fragment" >
+        <action
+            android:id="@+id/action_favouritesListFragment_to_imageDetailsFragment2"
+            app:destination="@id/imageDetailsFragment2"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+    </fragment>
+    <fragment
+        android:id="@+id/imageDetailsFragment2"
+        android:name="com.marblevhs.clairsavedimages.imageDetails.ImageDetailsFragment"
+        android:label="image_details_fragment"
+        tools:layout="@layout/image_details_fragment" />
+</navigation>

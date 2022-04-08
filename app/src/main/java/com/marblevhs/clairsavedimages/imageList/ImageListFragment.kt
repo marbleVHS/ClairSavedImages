@@ -1,84 +1,73 @@
 package com.marblevhs.clairsavedimages.imageList
 
 import android.content.Context
-import android.content.res.Resources
+import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
-import android.util.TypedValue
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.paging.LoadState
-import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import by.kirich1409.viewbindingdelegate.viewBinding
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
-import com.marblevhs.clairsavedimages.ImageListUiState
-import com.marblevhs.clairsavedimages.MainActivity
 import com.marblevhs.clairsavedimages.MainViewModel
 import com.marblevhs.clairsavedimages.R
 import com.marblevhs.clairsavedimages.data.LocalImage
 import com.marblevhs.clairsavedimages.databinding.ImageListFragmentBinding
 import com.marblevhs.clairsavedimages.extensions.appComponent
-import kotlinx.coroutines.delay
+import com.marblevhs.clairsavedimages.imageList.ImageListViewModel.ImageListUiState
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
-class ImageListFragment : Fragment() {
+class ImageListFragment : Fragment(R.layout.image_list_fragment) {
 
-    private val viewModel: MainViewModel by activityViewModels { viewModelFactory }
-    private var binding: ImageListFragmentBinding? = null
+    @Inject
+    lateinit var mainViewModelFactory: MainViewModel.Factory
+
+    @Inject
+    lateinit var viewModelFactory: ImageListViewModel.Factory
+
+    private val mainViewModel: MainViewModel by activityViewModels { mainViewModelFactory }
+    private val viewModel: ImageListViewModel by viewModels { viewModelFactory }
+    private val binding by viewBinding(ImageListFragmentBinding::bind)
     private var bottomNavView: BottomNavigationView? = null
     private var revUi: Int = 1
     private var albumUi: String = "saved"
-    private var shortAnimationDuration: Int = 0
     private val adapter: ImageListAdapter = ImageListAdapter() { image -> adapterOnClick(image) }
 
-    @Inject
-    lateinit var viewModelFactory: MainViewModel.Factory
 
     override fun onAttach(context: Context) {
         context.appComponent.inject(this)
         super.onAttach(context)
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        binding = ImageListFragmentBinding.inflate(layoutInflater)
-        return binding?.root!!
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        shortAnimationDuration = resources.getInteger(android.R.integer.config_shortAnimTime)
-        handleSystemInsets(view)
-        binding?.listLoader?.isVisible = viewModel.firstImagesInit
-        bottomNavView?.visibility = View.VISIBLE
         viewModel.initImages(revUi)
-        binding?.rvImages?.adapter = adapter.withLoadStateHeaderAndFooter(
+        handleSystemInsets(view)
+        bottomNavView = activity?.findViewById(R.id.bottomNavBar)
+        bottomNavView?.visibility = View.VISIBLE
+        binding.rvImages.adapter = adapter.withLoadStateHeaderAndFooter(
             header = ImageListLoaderStateAdapter(),
             footer = ImageListLoaderStateAdapter()
         )
-        binding?.rvImages?.layoutManager =
+        binding.rvImages.layoutManager =
             StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL)
-        fixSwipeRefreshLayout()
-        binding?.swipeRefreshLayout?.setProgressViewOffset(true, 80.toPx.toInt(), 130.toPx.toInt())
         initListeners()
+        assetColorSchemeToSwipeRefreshLayout()
         viewLifecycleOwner.lifecycleScope.launch {
             launch {
                 viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -97,7 +86,6 @@ class ImageListFragment : Fragment() {
                 viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                     viewModel.images.collectLatest {
                         adapter.submitData(it)
-//                        binding?.rvImages?.visibility = View.VISIBLE
                     }
                 }
             }
@@ -105,17 +93,22 @@ class ImageListFragment : Fragment() {
                 adapter.loadStateFlow.collectLatest { loadStates ->
                     if (loadStates.refresh == LoadState.Loading) {
                         if (!viewModel.firstImagesInit) {
-                            binding?.swipeRefreshLayout?.isRefreshing = true
+                            binding.swipeRefreshLayout.isRefreshing = true
+                            binding.listLoader.visibility = View.GONE
+                        } else if (mainViewModel.isLoggedFlow.value) {
+                            binding.listLoader.visibility = View.VISIBLE
+                            viewModel.firstImagesInit = false
                         }
                     } else {
-                        delay(200)
-                        binding?.swipeRefreshLayout?.isRefreshing = false
-                        binding?.listLoader?.visibility = View.GONE
-                        viewModel.firstImagesInit = false
+                        binding.swipeRefreshLayout.isRefreshing = false
+                        binding.listLoader.visibility = View.GONE
+                        if (loadStates.refresh is LoadState.Error) {
+                            showError((loadStates.refresh as LoadState.Error).error.message)
+                        }
                     }
+
                 }
             }
-
         }
 
     }
@@ -123,7 +116,7 @@ class ImageListFragment : Fragment() {
     private fun handleSystemInsets(view: View) {
         ViewCompat.setOnApplyWindowInsetsListener(view) { _, insets ->
             val sysBarInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            binding?.appbar?.updatePadding(
+            binding.appbar.updatePadding(
                 top = sysBarInsets.top,
                 left = sysBarInsets.left,
                 right = sysBarInsets.right
@@ -133,30 +126,32 @@ class ImageListFragment : Fragment() {
     }
 
 
-    private fun fixSwipeRefreshLayout() {
-        val recyclerView = binding?.rvImages
-        val swipeRefreshLayout = binding?.swipeRefreshLayout
-        recyclerView?.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                val topRowVerticalPosition =
-                    if (recyclerView.childCount == 0) 0 else recyclerView.getChildAt(
-                        0
-                    ).top
-                swipeRefreshLayout?.isEnabled = topRowVerticalPosition >= 0
+    private fun assetColorSchemeToSwipeRefreshLayout() {
+        when (resources.configuration.uiMode.and(Configuration.UI_MODE_NIGHT_MASK)) {
+            Configuration.UI_MODE_NIGHT_YES -> {
+                binding.swipeRefreshLayout.setColorSchemeResources(R.color.md_theme_dark_onBackground)
+                binding.swipeRefreshLayout.setProgressBackgroundColorSchemeResource(R.color.md_theme_dark_background)
             }
-
-        })
+            Configuration.UI_MODE_NIGHT_NO -> {
+                binding.swipeRefreshLayout.setColorSchemeResources(R.color.md_theme_light_onBackground)
+                binding.swipeRefreshLayout.setProgressBackgroundColorSchemeResource(R.color.md_theme_light_background)
+            }
+            Configuration.UI_MODE_NIGHT_UNDEFINED -> {
+                binding.swipeRefreshLayout.setColorSchemeResources(R.color.md_theme_light_onBackground)
+                binding.swipeRefreshLayout.setProgressBackgroundColorSchemeResource(R.color.md_theme_light_background)
+            }
+        }
     }
 
     private fun adapterOnClick(image: LocalImage) {
-        viewModel.newImageSelected(image)
-        findNavController().navigate(ImageListFragmentDirections.actionOpenImageDetailsImageList())
+        mainViewModel.newImageSelected(image)
+        findNavController().navigate(ImageListFragmentDirections.actionImageListFragmentToImageDetailsFragment())
     }
 
     private fun showError(errorMessage: String?) {
-        binding?.swipeRefreshLayout?.isRefreshing = false
-        Snackbar.make(binding?.coordinatorLayout as View, "Network error", Snackbar.LENGTH_SHORT)
+        binding.swipeRefreshLayout.isRefreshing = false
+        binding.listLoader.visibility = View.GONE
+        Snackbar.make(binding.coordinatorLayout as View, "Network error", Snackbar.LENGTH_SHORT)
             .show()
         Log.e("RESP", errorMessage ?: "0")
     }
@@ -166,18 +161,18 @@ class ImageListFragment : Fragment() {
         revUi = rev
         albumUi = album
         if (album == "saved") {
-            binding?.appbar?.title = "Claire saved pictures"
+            binding.appbar.title = "Claire saved pictures"
         } else {
-            binding?.appbar?.title = "Claire public pictures"
+            binding.appbar.title = "Claire public pictures"
         }
     }
 
     private fun initListeners() {
-        val swipeRefreshLayout = binding?.swipeRefreshLayout
-        swipeRefreshLayout?.setOnRefreshListener {
+        val swipeRefreshLayout = binding.swipeRefreshLayout
+        swipeRefreshLayout.setOnRefreshListener {
             adapter.refresh()
         }
-        binding?.appbar?.setOnMenuItemClickListener { menuItem ->
+        binding.appbar.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.menu_sort -> {
                     revUi = if (revUi == 1) {
@@ -202,7 +197,7 @@ class ImageListFragment : Fragment() {
                     true
                 }
                 R.id.log_out -> {
-                    (activity as MainActivity).clearLoginData()
+                    mainViewModel.clearLoginData()
                     true
                 }
                 else -> false
@@ -210,12 +205,6 @@ class ImageListFragment : Fragment() {
         }
     }
 
-    private val Number.toPx
-        get() = TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_DIP,
-            this.toFloat(),
-            Resources.getSystem().displayMetrics
-        )
 
     companion object {
         fun newInstance() = ImageListFragment()

@@ -4,9 +4,10 @@ import android.app.Application
 import com.marblevhs.clairsavedimages.di.AppComponent
 import com.marblevhs.clairsavedimages.di.DaggerAppComponent
 
-class MainApp: Application(){
+class MainApp : Application() {
 
     lateinit var appComponent: AppComponent
+
 
     override fun onCreate() {
         super.onCreate()
