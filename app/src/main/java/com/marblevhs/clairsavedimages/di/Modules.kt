@@ -15,7 +15,9 @@ import com.marblevhs.clairsavedimages.imageDetails.ImageDetailsFragment
 import com.marblevhs.clairsavedimages.imageList.ImageListFragment
 import com.marblevhs.clairsavedimages.imageRepo.Repo
 import com.marblevhs.clairsavedimages.imageRepo.RepoImpl
-import com.marblevhs.clairsavedimages.network.ImageApi
+import com.marblevhs.clairsavedimages.network.ImageService
+import com.marblevhs.clairsavedimages.network.ProfileService
+import com.marblevhs.clairsavedimages.profileScreen.ProfileFragment
 import com.marblevhs.clairsavedimages.room.DatabaseStorage
 import dagger.*
 import kotlinx.coroutines.CoroutineScope
@@ -43,6 +45,7 @@ interface AppComponent {
     fun inject(favouritesListFragment: FavouritesListFragment)
     fun inject(imageDetailsFragment: ImageDetailsFragment)
     fun inject(mainActivity: MainActivity)
+    fun inject(profileFragment: ProfileFragment)
 }
 
 @Module(includes = [AppBindModule::class])
@@ -50,7 +53,17 @@ object AppModule {
 
     @Provides
     @AppScope
-    fun provideImageApi(): ImageApi {
+    fun provideImageService(): ImageService {
+        val retrofit = Retrofit.Builder()
+            .baseUrl("https://api.vk.com/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+        return retrofit.create()
+    }
+
+    @Provides
+    @AppScope
+    fun provideProfileService(): ProfileService {
         val retrofit = Retrofit.Builder()
             .baseUrl("https://api.vk.com/")
             .addConverterFactory(GsonConverterFactory.create())

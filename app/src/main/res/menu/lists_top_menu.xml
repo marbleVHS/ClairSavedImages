@@ -14,13 +14,7 @@
         android:id="@+id/menu_refresh"
         android:title="@string/top_menu_refresh_text"
         app:showAsAction="never" />
-    <item
-        android:id="@+id/menu_info"
-        android:title="@string/top_menu_about_app_text"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/log_out"
-        android:title="Log out"
-        app:showAsAction="never" />
+
+
 
 </menu>

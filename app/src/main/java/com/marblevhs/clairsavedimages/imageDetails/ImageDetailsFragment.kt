@@ -12,7 +12,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import by.kirich1409.viewbindingdelegate.viewBinding
 import coil.load
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
 import com.marblevhs.clairsavedimages.MainActivity
 import com.marblevhs.clairsavedimages.MainViewModel
@@ -33,7 +32,6 @@ class ImageDetailsFragment : Fragment(R.layout.image_details_fragment) {
 
     private val binding by viewBinding(ImageDetailsFragmentBinding::bind)
     private var shortAnimationDuration: Int = 0
-    private var bottomNavView: BottomNavigationView? = null
     private val viewModel: MainViewModel by activityViewModels { viewModelFactory }
 
     companion object {
@@ -47,14 +45,9 @@ class ImageDetailsFragment : Fragment(R.layout.image_details_fragment) {
     }
 
 
-    override fun onPause() {
-        super.onPause()
-        bottomNavView?.visibility = View.VISIBLE
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        bottomNavView = activity?.findViewById(R.id.bottomNavBar)
         initListeners()
         shortAnimationDuration = resources.getInteger(android.R.integer.config_shortAnimTime)
         viewLifecycleOwner.lifecycleScope.launch {
@@ -81,10 +74,6 @@ class ImageDetailsFragment : Fragment(R.layout.image_details_fragment) {
 
     }
 
-    override fun onResume() {
-        bottomNavView?.visibility = View.GONE
-        super.onResume()
-    }
 
     private fun setLoading(isLoading: Boolean) {
         if (isLoading) {

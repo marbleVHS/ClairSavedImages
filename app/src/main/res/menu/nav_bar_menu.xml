@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/image_list"
-        android:enabled="true"
+        android:id="@+id/imageListFragment"
         android:icon="@drawable/ic_baseline_images_36"
         android:title="Pictures"/>
     <item
-        android:id="@+id/favourites_list"
-        android:enabled="true"
+        android:id="@+id/favouritesListFragment"
         android:icon="@drawable/ic_baseline_bookmark_36"
         android:title="Favourites"/>
+    <item
+        android:id="@+id/profileFragment"
+        android:icon="@drawable/ic_baseline_account_circle_36"
+        android:title="Profile"/>
+
 </menu>
