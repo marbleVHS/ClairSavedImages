@@ -8,8 +8,8 @@
         android:title="@string/top_menu_sort_text"
         app:showAsAction="ifRoom" />
     <item
-        android:id="@+id/menu_info"
-        android:title="@string/top_menu_about_app_text"
+        android:id="@+id/menu_refresh"
+        android:title="@string/top_menu_refresh_text"
         app:showAsAction="never" />
 
 

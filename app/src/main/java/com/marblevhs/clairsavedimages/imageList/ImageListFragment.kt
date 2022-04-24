@@ -14,13 +14,13 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.navigation.fragment.findNavController
 import androidx.paging.LoadState
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import by.kirich1409.viewbindingdelegate.viewBinding
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
+import com.marblevhs.clairsavedimages.MainActivity
 import com.marblevhs.clairsavedimages.MainViewModel
+import com.marblevhs.clairsavedimages.NavBarFragmentDirections
 import com.marblevhs.clairsavedimages.R
 import com.marblevhs.clairsavedimages.data.LocalImage
 import com.marblevhs.clairsavedimages.databinding.ImageListFragmentBinding
@@ -42,7 +42,6 @@ class ImageListFragment : Fragment(R.layout.image_list_fragment) {
     private val mainViewModel: MainViewModel by activityViewModels { mainViewModelFactory }
     private val viewModel: ImageListViewModel by viewModels { viewModelFactory }
     private val binding by viewBinding(ImageListFragmentBinding::bind)
-    private var bottomNavView: BottomNavigationView? = null
     private var revUi: Int = 1
     private var albumUi: String = "saved"
     private val adapter: ImageListAdapter = ImageListAdapter() { image -> adapterOnClick(image) }
@@ -58,8 +57,6 @@ class ImageListFragment : Fragment(R.layout.image_list_fragment) {
         super.onViewCreated(view, savedInstanceState)
         viewModel.initImages(revUi)
         handleSystemInsets(view)
-        bottomNavView = activity?.findViewById(R.id.bottomNavBar)
-        bottomNavView?.visibility = View.VISIBLE
         binding.rvImages.adapter = adapter.withLoadStateHeaderAndFooter(
             header = ImageListLoaderStateAdapter(),
             footer = ImageListLoaderStateAdapter()
@@ -145,7 +142,8 @@ class ImageListFragment : Fragment(R.layout.image_list_fragment) {
 
     private fun adapterOnClick(image: LocalImage) {
         mainViewModel.newImageSelected(image)
-        findNavController().navigate(ImageListFragmentDirections.actionImageListFragmentToImageDetailsFragment())
+        (activity as MainActivity).navController
+            .navigate(NavBarFragmentDirections.actionNavBarFragmentToImageDetailsFragment())
     }
 
     private fun showError(errorMessage: String?) {
@@ -194,10 +192,6 @@ class ImageListFragment : Fragment(R.layout.image_list_fragment) {
                     true
                 }
                 R.id.info -> {
-                    true
-                }
-                R.id.log_out -> {
-                    mainViewModel.clearLoginData()
                     true
                 }
                 else -> false

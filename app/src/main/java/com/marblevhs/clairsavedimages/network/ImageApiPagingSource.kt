@@ -9,7 +9,7 @@ import retrofit2.HttpException
 
 
 class ImageApiPagingSource(
-    private val imageApi: ImageApi,
+    private val imageService: ImageService,
     private val accessToken: String,
     private val query: String
 ) : PagingSource<Int, LocalImage>() {
@@ -55,7 +55,7 @@ class ImageApiPagingSource(
                     throw IllegalArgumentException("Illegal query argument")
                 }
             }
-            val images: List<LocalImage> = imageApi.requestImages(
+            val images: List<LocalImage> = imageService.requestImages(
                 ownerId = ownerId,
                 albumId = albumId,
                 rev = rev,

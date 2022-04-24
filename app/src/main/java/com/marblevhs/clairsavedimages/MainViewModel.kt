@@ -28,8 +28,8 @@ class MainViewModel(private val repo: Repo) : ViewModel() {
 
     fun getIsLogged() {
         viewModelScope.launch(Dispatchers.IO) {
-            val isLogged = repo.getIsLogged()
-            _isLoggedFlow.value = isLogged
+            val isLogged = async { repo.getIsLogged() }
+            _isLoggedFlow.value = isLogged.await()
         }
     }
 
@@ -49,6 +49,25 @@ class MainViewModel(private val repo: Repo) : ViewModel() {
 
     private val _isLoggedFlow = MutableStateFlow(value = false)
     val isLoggedFlow: StateFlow<Boolean> = _isLoggedFlow.asStateFlow()
+
+    fun getDefaultNightMode() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val defaultNightMode = async { repo.getDefaultNightMode() }
+            _defaultNightMode.value = defaultNightMode.await()
+        }
+    }
+
+
+
+    fun setDefaultNightMode(defaultNightMode: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repo.setDefaultNightMode(defaultNightMode)
+            getDefaultNightMode()
+        }
+    }
+
+    private val _defaultNightMode = MutableStateFlow(value = -1)
+    val defaultNightMode: StateFlow<Int> = _defaultNightMode.asStateFlow()
 
 
     private var imageInstance = LocalImage(

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_bar_graph"
+    app:startDestination="@id/imageListFragment">
+
+    <fragment
+        android:id="@+id/imageListFragment"
+        android:name="com.marblevhs.clairsavedimages.imageList.ImageListFragment"
+        android:label="ImageListFragment" />
+    <fragment
+        android:id="@+id/favouritesListFragment"
+        android:name="com.marblevhs.clairsavedimages.favouritesList.FavouritesListFragment"
+        android:label="favourites_list_fragment"
+        tools:layout="@layout/favourites_list_fragment" />
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.marblevhs.clairsavedimages.profileScreen.ProfileFragment"
+        android:label="profile_fragment"
+        tools:layout="@layout/profile_fragment" />
+</navigation>

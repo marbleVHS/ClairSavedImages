@@ -6,7 +6,7 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 
 
-interface ImageApi {
+interface ImageService {
     @GET("method/photos.get")
     suspend fun requestImages(
         @Query("owner_id") ownerId: String,

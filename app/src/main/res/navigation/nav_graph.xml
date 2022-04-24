@@ -1,12 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/image_list">
+    app:startDestination="@id/loginFragment">
 
-    <include app:graph="@navigation/favourites_list" />
-    <include app:graph="@navigation/login_screen" />
-    <include app:graph="@navigation/image_list" />
-
-
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="com.marblevhs.clairsavedimages.loginScreen.LoginFragment"
+        android:label="login_fragment"
+        tools:layout="@layout/login_fragment" >
+        <action
+            android:id="@+id/action_loginFragment_to_navBarFragment"
+            app:destination="@id/navBarFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim"
+            app:popUpTo="@id/nav_graph"
+            app:popUpToInclusive="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/imageDetailsFragment"
+        android:name="com.marblevhs.clairsavedimages.imageDetails.ImageDetailsFragment"
+        android:label="image_details_fragment"
+        tools:layout="@layout/image_details_fragment" />
+    <fragment
+        android:id="@+id/navBarFragment"
+        android:name="com.marblevhs.clairsavedimages.NavBarFragment"
+        android:label="fragment_nav_bar"
+        tools:layout="@layout/fragment_nav_bar" >
+        <action
+            android:id="@+id/action_navBarFragment_to_imageDetailsFragment"
+            app:destination="@id/imageDetailsFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+    </fragment>
 </navigation>
