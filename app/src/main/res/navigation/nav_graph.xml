@@ -24,7 +24,11 @@
         android:id="@+id/imageDetailsFragment"
         android:name="com.marblevhs.clairsavedimages.imageDetails.ImageDetailsFragment"
         android:label="image_details_fragment"
-        tools:layout="@layout/image_details_fragment" />
+        tools:layout="@layout/image_details_fragment" >
+        <argument
+            android:name="chosenImage"
+            app:argType="com.marblevhs.clairsavedimages.data.LocalImage" />
+    </fragment>
     <fragment
         android:id="@+id/navBarFragment"
         android:name="com.marblevhs.clairsavedimages.NavBarFragment"

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Base.V27.Night.Theme.ClairSavedImages" parent="Base.V23.Night.Theme.ClairSavedImages">
+        <item name="android:windowLightNavigationBar">false</item>
+        <item name="android:navigationBarColor">#03000000</item>
+    </style>
+
+    <style name="Base.Theme.ClairSavedImages" parent="Base.V27.Night.Theme.ClairSavedImages"/>
+
+</resources>

@@ -15,7 +15,7 @@
         app:liftOnScrollTargetViewId="@id/rvImages">
 
         <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/appbar"
+            android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:layout_scrollFlags="scroll|snap|enterAlways"

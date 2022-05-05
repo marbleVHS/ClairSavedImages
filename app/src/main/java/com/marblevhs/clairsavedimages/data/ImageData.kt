@@ -1,9 +1,11 @@
 package com.marblevhs.clairsavedimages.data
 
 
+import android.os.Parcelable
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import com.google.gson.annotations.SerializedName
+import kotlinx.parcelize.Parcelize
 
 data class UnhandledImageResponse(
     @SerializedName("response")
@@ -39,6 +41,7 @@ data class Size(
     tableName = "LocalImage",
     primaryKeys = ["id", "ownerId", "album"]
 )
+@Parcelize
 data class LocalImage(
     @ColumnInfo(name = "id")
     val id: String,
@@ -54,4 +57,4 @@ data class LocalImage(
     val thumbnailUrl: String,
     @ColumnInfo(name = "fullSizeUrl")
     val fullSizeUrl: String
-)
+) : Parcelable

@@ -9,7 +9,6 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -39,7 +38,6 @@ class ImageListFragment : Fragment(R.layout.image_list_fragment) {
     @Inject
     lateinit var viewModelFactory: ImageListViewModel.Factory
 
-    private val mainViewModel: MainViewModel by activityViewModels { mainViewModelFactory }
     private val viewModel: ImageListViewModel by viewModels { viewModelFactory }
     private val binding by viewBinding(ImageListFragmentBinding::bind)
     private var revUi: Int = 1
@@ -56,7 +54,7 @@ class ImageListFragment : Fragment(R.layout.image_list_fragment) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         viewModel.initImages(revUi)
-        handleSystemInsets(view)
+        handleSystemInsets(binding.toolbar)
         binding.rvImages.adapter = adapter.withLoadStateHeaderAndFooter(
             header = ImageListLoaderStateAdapter(),
             footer = ImageListLoaderStateAdapter()
@@ -92,7 +90,7 @@ class ImageListFragment : Fragment(R.layout.image_list_fragment) {
                         if (!viewModel.firstImagesInit) {
                             binding.swipeRefreshLayout.isRefreshing = true
                             binding.listLoader.visibility = View.GONE
-                        } else if (mainViewModel.isLoggedFlow.value) {
+                        } else {
                             binding.listLoader.visibility = View.VISIBLE
                             viewModel.firstImagesInit = false
                         }
@@ -111,9 +109,9 @@ class ImageListFragment : Fragment(R.layout.image_list_fragment) {
     }
 
     private fun handleSystemInsets(view: View) {
-        ViewCompat.setOnApplyWindowInsetsListener(view) { _, insets ->
+        ViewCompat.setOnApplyWindowInsetsListener(view) { v, insets ->
             val sysBarInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            binding.appbar.updatePadding(
+            v.updatePadding(
                 top = sysBarInsets.top,
                 left = sysBarInsets.left,
                 right = sysBarInsets.right
@@ -141,9 +139,8 @@ class ImageListFragment : Fragment(R.layout.image_list_fragment) {
     }
 
     private fun adapterOnClick(image: LocalImage) {
-        mainViewModel.newImageSelected(image)
         (activity as MainActivity).navController
-            .navigate(NavBarFragmentDirections.actionNavBarFragmentToImageDetailsFragment())
+            .navigate(NavBarFragmentDirections.actionNavBarFragmentToImageDetailsFragment(image))
     }
 
     private fun showError(errorMessage: String?) {
@@ -159,9 +156,9 @@ class ImageListFragment : Fragment(R.layout.image_list_fragment) {
         revUi = rev
         albumUi = album
         if (album == "saved") {
-            binding.appbar.title = "Claire saved pictures"
+            binding.toolbar.title = "Claire saved pictures"
         } else {
-            binding.appbar.title = "Claire public pictures"
+            binding.toolbar.title = "Claire public pictures"
         }
     }
 
@@ -170,7 +167,7 @@ class ImageListFragment : Fragment(R.layout.image_list_fragment) {
         swipeRefreshLayout.setOnRefreshListener {
             adapter.refresh()
         }
-        binding.appbar.setOnMenuItemClickListener { menuItem ->
+        binding.toolbar.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.menu_sort -> {
                     revUi = if (revUi == 1) {

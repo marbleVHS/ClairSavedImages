@@ -8,7 +8,6 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -36,7 +35,6 @@ class FavouritesListFragment : Fragment(R.layout.favourites_list_fragment) {
     @Inject
     lateinit var viewModelFactory: FavouritesListViewModel.Factory
 
-    private val mainViewModel: MainViewModel by activityViewModels { mainViewModelFactory }
     private val viewModel: FavouritesListViewModel by viewModels { viewModelFactory }
     private val binding by viewBinding(FavouritesListFragmentBinding::bind)
     private var revUi: Int = 1
@@ -78,7 +76,7 @@ class FavouritesListFragment : Fragment(R.layout.favourites_list_fragment) {
     private fun handleSystemInsets(view: View) {
         ViewCompat.setOnApplyWindowInsetsListener(view) { _, insets ->
             val sysBarInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            binding.appbar.updatePadding(
+            binding.toolbar.updatePadding(
                 top = sysBarInsets.top,
                 left = sysBarInsets.left,
                 right = sysBarInsets.right
@@ -89,9 +87,8 @@ class FavouritesListFragment : Fragment(R.layout.favourites_list_fragment) {
 
 
     private fun adapterOnClick(image: LocalImage) {
-        mainViewModel.newImageSelected(image)
         (activity as MainActivity).navController
-            .navigate(NavBarFragmentDirections.actionNavBarFragmentToImageDetailsFragment())
+            .navigate(NavBarFragmentDirections.actionNavBarFragmentToImageDetailsFragment(image))
     }
 
     private fun showError(errorMessage: String?) {
@@ -112,7 +109,7 @@ class FavouritesListFragment : Fragment(R.layout.favourites_list_fragment) {
 
 
     private fun initListeners() {
-        binding.appbar.setOnMenuItemClickListener { menuItem ->
+        binding.toolbar.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.menu_sort -> {
                     revUi = if (revUi == 1) {

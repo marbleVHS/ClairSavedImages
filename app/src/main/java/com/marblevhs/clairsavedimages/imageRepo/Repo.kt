@@ -56,6 +56,7 @@ class RepoImpl @Inject constructor(
             config = PagingConfig(
                 pageSize = 400,
                 initialLoadSize = 400,
+                maxSize = 2000,
                 enablePlaceholders = false
             ),
             pagingSourceFactory = {
