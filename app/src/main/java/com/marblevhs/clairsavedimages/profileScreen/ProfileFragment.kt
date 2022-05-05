@@ -58,10 +58,13 @@ class ProfileFragment : Fragment(R.layout.profile_fragment) {
                             is ProfileUiState.Success ->
                                 updateUi(it.userProfile)
                             is ProfileUiState.InitLoadingState -> {
+                                binding.ivError.visibility = View.INVISIBLE
                                 binding.progressBar.visibility = View.VISIBLE
                                 binding.tvProfileName.visibility = View.INVISIBLE
                                 binding.ivProfileImage.visibility = View.INVISIBLE
                                 binding.buttonLogOut.visibility = View.INVISIBLE
+                                binding.tvTheme.visibility = View.INVISIBLE
+                                binding.ThemeChooser.visibility = View.INVISIBLE
                             }
                             is ProfileUiState.Error ->
                                 showError(it.exception.localizedMessage)
@@ -98,7 +101,10 @@ class ProfileFragment : Fragment(R.layout.profile_fragment) {
         }
         val fullName = "${userProfile.firstName} ${userProfile.lastName}"
         binding.tvProfileName.text = fullName
-        binding.progressBar.visibility = View.GONE
+        binding.ThemeChooser.visibility = View.VISIBLE
+        binding.tvTheme.visibility = View.VISIBLE
+        binding.progressBar.visibility = View.INVISIBLE
+        binding.ivError.visibility = View.INVISIBLE
         binding.tvProfileName.visibility = View.VISIBLE
         binding.ivProfileImage.visibility = View.VISIBLE
         binding.buttonLogOut.visibility = View.VISIBLE
@@ -108,6 +114,10 @@ class ProfileFragment : Fragment(R.layout.profile_fragment) {
         if (error != null) {
             Log.e("RESP", error)
         }
+        binding.ivError.visibility = View.VISIBLE
+        binding.ThemeChooser.visibility = View.VISIBLE
+        binding.tvTheme.visibility = View.VISIBLE
+        binding.progressBar.visibility = View.INVISIBLE
         binding.tvProfileName.visibility = View.INVISIBLE
         binding.ivProfileImage.visibility = View.INVISIBLE
         binding.buttonLogOut.visibility = View.INVISIBLE
@@ -116,7 +126,7 @@ class ProfileFragment : Fragment(R.layout.profile_fragment) {
     private fun handleSystemInsets(view: View) {
         ViewCompat.setOnApplyWindowInsetsListener(view) { _, insets ->
             val sysBarInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            binding.appbar.updatePadding(
+            binding.appbarLayout.updatePadding(
                 top = sysBarInsets.top,
                 left = sysBarInsets.left,
                 right = sysBarInsets.right

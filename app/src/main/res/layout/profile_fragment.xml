@@ -7,16 +7,18 @@
     tools:context=".profileScreen.ProfileFragment">
 
     <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/appbar"
+        android:id="@+id/appbarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:liftOnScroll="false">
 
         <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:title="Profile"
             app:titleCentered="true" />
+        
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -81,6 +83,18 @@
                     app:layout_constraintStart_toEndOf="@+id/ivProfileImage"
                     app:layout_constraintTop_toTopOf="@+id/ivProfileImage"
                     tools:text="@tools:sample/full_names" />
+
+                <ImageView
+                    android:id="@+id/ivError"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_baseline_error_120"
+                    android:visibility="invisible"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:visibility="visible" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 

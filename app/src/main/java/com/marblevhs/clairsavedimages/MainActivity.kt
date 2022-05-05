@@ -19,9 +19,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.NavHostFragment
-import by.kirich1409.viewbindingdelegate.viewBinding
 import com.google.android.material.color.DynamicColors
-import com.marblevhs.clairsavedimages.databinding.MainActivityBinding
 import com.marblevhs.clairsavedimages.extensions.appComponent
 import com.marblevhs.clairsavedimages.loginScreen.LoginActivityResultCallback
 import com.marblevhs.clairsavedimages.loginScreen.LoginFragmentDirections
@@ -40,7 +38,6 @@ class MainActivity : AppCompatActivity() {
     private var VkLoginActivityResultLauncher: ActivityResultLauncher<Collection<VKScope>>? = null
     lateinit var navController: NavController
     private val viewModel: MainViewModel by viewModels { viewModelFactory }
-    private val binding by viewBinding(MainActivityBinding::bind)
 
 
     override fun onCreate(savedInstanceState: Bundle?) {

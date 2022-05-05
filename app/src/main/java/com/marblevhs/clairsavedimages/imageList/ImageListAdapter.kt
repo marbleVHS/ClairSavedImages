@@ -45,8 +45,8 @@ class ImageListAdapter(private val onClick: (LocalImage) -> Unit) :
 
         init {
             itemView.setOnClickListener {
-                currentImage?.let {
-                    onClick(it)
+                currentImage?.let { image ->
+                    onClick(image)
                 }
             }
         }

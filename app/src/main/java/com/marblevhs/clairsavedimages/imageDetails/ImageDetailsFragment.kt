@@ -6,20 +6,21 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.navArgs
 import by.kirich1409.viewbindingdelegate.viewBinding
 import coil.load
 import com.google.android.material.snackbar.Snackbar
 import com.marblevhs.clairsavedimages.MainActivity
 import com.marblevhs.clairsavedimages.MainViewModel
-import com.marblevhs.clairsavedimages.MainViewModel.ImageDetailsUiState
 import com.marblevhs.clairsavedimages.R
 import com.marblevhs.clairsavedimages.data.LocalImage
 import com.marblevhs.clairsavedimages.databinding.ImageDetailsFragmentBinding
 import com.marblevhs.clairsavedimages.extensions.appComponent
+import com.marblevhs.clairsavedimages.imageDetails.ImageDetailsViewModel.ImageDetailsUiState
 import com.ortiz.touchview.OnTouchImageViewListener
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -28,11 +29,16 @@ import javax.inject.Inject
 class ImageDetailsFragment : Fragment(R.layout.image_details_fragment) {
 
     @Inject
-    lateinit var viewModelFactory: MainViewModel.Factory
+    lateinit var mainViewModelFactory: MainViewModel.Factory
+
+    @Inject
+    lateinit var viewModelFactory: ImageDetailsViewModel.Factory
 
     private val binding by viewBinding(ImageDetailsFragmentBinding::bind)
-    private var shortAnimationDuration: Int = 0
-    private val viewModel: MainViewModel by activityViewModels { viewModelFactory }
+    private val viewModel: ImageDetailsViewModel by viewModels { viewModelFactory }
+
+
+    private val args: ImageDetailsFragmentArgs by navArgs()
 
     companion object {
         fun newInstance() = ImageDetailsFragment()
@@ -45,16 +51,21 @@ class ImageDetailsFragment : Fragment(R.layout.image_details_fragment) {
     }
 
 
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initListeners()
-        shortAnimationDuration = resources.getInteger(android.R.integer.config_shortAnimTime)
+        if(savedInstanceState == null){
+            viewModel.newImageSelected(args.chosenImage)
+        }
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.detailsUiState.collect {
                     when (it) {
-                        is ImageDetailsUiState.Success -> updateUi(it.image, it.isLiked, it.isFav)
+                        is ImageDetailsUiState.Success -> updateUi(
+                            it.image,
+                            it.isLiked,
+                            it.isFav
+                        )
                         is ImageDetailsUiState.Error -> {
                             setLoading(isLoading = false)
                             Snackbar.make(
@@ -121,8 +132,7 @@ class ImageDetailsFragment : Fragment(R.layout.image_details_fragment) {
     }
 
     private fun zoomInButtonClicked() {
-        val imageView = binding.ivSelectedImage
-        imageView.setZoom(2f)
+        binding.ivSelectedImage.setZoom(2f)
         fadeToInvisible()
     }
 
@@ -145,19 +155,8 @@ class ImageDetailsFragment : Fragment(R.layout.image_details_fragment) {
     }
 
 
-    private var curImage: LocalImage = LocalImage(
-        id = "",
-        ownerId = "",
-        album = "",
-        width = 1,
-        height = 1,
-        thumbnailUrl = "",
-        fullSizeUrl = ""
-    )
-
     private fun updateUi(image: LocalImage, isLiked: Boolean, isFav: Boolean) {
         if (image.id != "") {
-            curImage = image
             binding.ivSelectedImage.load(image.fullSizeUrl) {
                 crossfade(true)
                 placeholder(R.drawable.ic_download_progress)
