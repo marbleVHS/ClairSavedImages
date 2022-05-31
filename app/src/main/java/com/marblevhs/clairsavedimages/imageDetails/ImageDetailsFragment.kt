@@ -20,7 +20,6 @@ import com.marblevhs.clairsavedimages.R
 import com.marblevhs.clairsavedimages.data.LocalImage
 import com.marblevhs.clairsavedimages.databinding.ImageDetailsFragmentBinding
 import com.marblevhs.clairsavedimages.extensions.appComponent
-import com.marblevhs.clairsavedimages.imageDetails.ImageDetailsViewModel.ImageDetailsUiState
 import com.ortiz.touchview.OnTouchImageViewListener
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -54,7 +53,7 @@ class ImageDetailsFragment : Fragment(R.layout.image_details_fragment) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initListeners()
-        if(savedInstanceState == null){
+        if (savedInstanceState == null) {
             viewModel.newImageSelected(args.chosenImage)
         }
         viewLifecycleOwner.lifecycleScope.launch {

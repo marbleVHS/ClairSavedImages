@@ -100,10 +100,11 @@ class ImageListViewModel(private val repo: Repo) : ViewModel() {
         }
     }
 
-    sealed class ImageListUiState {
-        data class Success(val rev: Int, val album: String) : ImageListUiState()
-        data class Error(val exception: Throwable) : ImageListUiState()
-        object InitLoadingState : ImageListUiState()
-    }
 
+}
+
+sealed class ImageListUiState {
+    data class Success(val rev: Int, val album: String) : ImageListUiState()
+    data class Error(val exception: Throwable) : ImageListUiState()
+    object InitLoadingState : ImageListUiState()
 }

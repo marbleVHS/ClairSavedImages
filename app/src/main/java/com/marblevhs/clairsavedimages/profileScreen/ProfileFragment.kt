@@ -14,7 +14,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import by.kirich1409.viewbindingdelegate.viewBinding
-import coil.annotation.ExperimentalCoilApi
 import coil.load
 import coil.transform.CircleCropTransformation
 import com.marblevhs.clairsavedimages.MainViewModel
@@ -22,7 +21,6 @@ import com.marblevhs.clairsavedimages.R
 import com.marblevhs.clairsavedimages.data.UserProfile
 import com.marblevhs.clairsavedimages.databinding.ProfileFragmentBinding
 import com.marblevhs.clairsavedimages.extensions.appComponent
-import com.marblevhs.clairsavedimages.profileScreen.ProfileViewModel.ProfileUiState
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -91,7 +89,7 @@ class ProfileFragment : Fragment(R.layout.profile_fragment) {
         }
     }
 
-    @OptIn(ExperimentalCoilApi::class)
+
     private fun updateUi(userProfile: UserProfile) {
         binding.ivProfileImage.load(userProfile.profilePicUrl) {
             crossfade(enable = true)
