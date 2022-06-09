@@ -37,10 +37,12 @@ class ProfileViewModel(private val repo: Repo) : ViewModel() {
     }
 
 
-    sealed class ProfileUiState {
-        data class Success(val userProfile: UserProfile) : ProfileUiState()
-        data class Error(val exception: Throwable) : ProfileUiState()
-        object InitLoadingState : ProfileUiState()
-    }
 
+
+}
+
+sealed class ProfileUiState {
+    data class Success(val userProfile: UserProfile) : ProfileUiState()
+    data class Error(val exception: Throwable) : ProfileUiState()
+    object InitLoadingState : ProfileUiState()
 }

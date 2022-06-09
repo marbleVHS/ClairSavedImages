@@ -138,12 +138,14 @@ class ImageDetailsViewModel(private val repo: Repo) : ViewModel() {
     private val _detailsUiState = MutableStateFlow<ImageDetailsUiState>(detailsDefaultState)
     val detailsUiState: StateFlow<ImageDetailsUiState> = _detailsUiState.asStateFlow()
 
-    sealed class ImageDetailsUiState {
-        data class Success(val isLiked: Boolean, val isFav: Boolean, val image: LocalImage) :
-            ImageDetailsUiState()
 
-        data class Error(val exception: Throwable) : ImageDetailsUiState()
-        object LoadingState : ImageDetailsUiState()
-    }
 
+}
+
+sealed class ImageDetailsUiState {
+    data class Success(val isLiked: Boolean, val isFav: Boolean, val image: LocalImage) :
+        ImageDetailsUiState()
+
+    data class Error(val exception: Throwable) : ImageDetailsUiState()
+    object LoadingState : ImageDetailsUiState()
 }

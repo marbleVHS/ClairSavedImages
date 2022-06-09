@@ -75,10 +75,11 @@ class FavouritesListViewModel(private val repo: Repo) : ViewModel() {
     }
 
 
-    sealed class FavouritesListUiState {
-        data class Success(val images: List<LocalImage>, val rev: Int) : FavouritesListUiState()
-        data class Error(val exception: Throwable) : FavouritesListUiState()
-        object InitLoadingState : FavouritesListUiState()
-    }
 
+}
+
+sealed class FavouritesListUiState {
+    data class Success(val images: List<LocalImage>, val rev: Int) : FavouritesListUiState()
+    data class Error(val exception: Throwable) : FavouritesListUiState()
+    object InitLoadingState : FavouritesListUiState()
 }

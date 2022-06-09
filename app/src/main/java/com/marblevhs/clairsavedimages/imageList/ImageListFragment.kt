@@ -24,7 +24,6 @@ import com.marblevhs.clairsavedimages.R
 import com.marblevhs.clairsavedimages.data.LocalImage
 import com.marblevhs.clairsavedimages.databinding.ImageListFragmentBinding
 import com.marblevhs.clairsavedimages.extensions.appComponent
-import com.marblevhs.clairsavedimages.imageList.ImageListViewModel.ImageListUiState
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject

@@ -22,7 +22,6 @@ import com.marblevhs.clairsavedimages.R
 import com.marblevhs.clairsavedimages.data.LocalImage
 import com.marblevhs.clairsavedimages.databinding.FavouritesListFragmentBinding
 import com.marblevhs.clairsavedimages.extensions.appComponent
-import com.marblevhs.clairsavedimages.favouritesList.FavouritesListViewModel.FavouritesListUiState
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
