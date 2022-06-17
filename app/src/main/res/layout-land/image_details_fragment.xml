@@ -30,10 +30,12 @@
         android:minWidth="0dp"
         android:minHeight="0dp"
         android:textIsSelectable="false"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/zoomInButton"
         app:layout_constraintStart_toStartOf="@+id/zoomInButton"
-        app:layout_constraintTop_toBottomOf="@+id/zoomInButton" />
+        app:layout_constraintTop_toBottomOf="@+id/zoomInButton"
+        tools:visibility="visible" />
 
     <CheckBox
         android:id="@+id/favouritesButton"
@@ -44,10 +46,12 @@
         android:fitsSystemWindows="true"
         android:minWidth="0dp"
         android:minHeight="0dp"
+        android:visibility="invisible"
         app:layout_constraintBottom_toTopOf="@+id/zoomInButton"
         app:layout_constraintEnd_toEndOf="@+id/zoomInButton"
         app:layout_constraintStart_toStartOf="@+id/zoomInButton"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="visible" />
 
     <Button
         android:id="@+id/zoomInButton"
@@ -56,6 +60,7 @@
         android:layout_height="wrap_content"
         android:text="@string/zoom_in_text"
         android:textAllCaps="false"
+        android:visibility="invisible"
         app:icon="@drawable/ic_baseline_zoom_in_24"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
