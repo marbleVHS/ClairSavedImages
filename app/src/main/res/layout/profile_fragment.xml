@@ -51,7 +51,7 @@
                     android:layout_marginStart="16dp"
                     android:layout_marginTop="16dp"
                     android:layout_marginBottom="16dp"
-                    android:scaleType="fitXY"
+                    android:scaleType="fitCenter"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
@@ -140,6 +140,13 @@
                     android:text="System default"
                     android:textAlignment="textStart" />
             </RadioGroup>
+
+            <Button
+                android:id="@+id/testButton"
+                style="@style/Widget.Material3.ExtendedFloatingActionButton.Tertiary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Test" />
 
 
         </LinearLayout>

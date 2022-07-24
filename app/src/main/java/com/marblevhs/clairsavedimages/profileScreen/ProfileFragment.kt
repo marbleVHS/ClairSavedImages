@@ -45,9 +45,11 @@ class ProfileFragment : Fragment(R.layout.profile_fragment) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        handleSystemInsets(view)
+        handleSystemInsets(binding.appbarLayout)
         initListeners()
-        viewModel.initProfile()
+        if (savedInstanceState == null) {
+            viewModel.initProfile()
+        }
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
@@ -96,6 +98,7 @@ class ProfileFragment : Fragment(R.layout.profile_fragment) {
             transformations(CircleCropTransformation())
             placeholder(R.drawable.ic_download_progress)
             error(R.drawable.ic_download_error)
+
         }
         val fullName = "${userProfile.firstName} ${userProfile.lastName}"
         binding.tvProfileName.text = fullName
@@ -124,7 +127,7 @@ class ProfileFragment : Fragment(R.layout.profile_fragment) {
     private fun handleSystemInsets(view: View) {
         ViewCompat.setOnApplyWindowInsetsListener(view) { _, insets ->
             val sysBarInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            binding.appbarLayout.updatePadding(
+            view.updatePadding(
                 top = sysBarInsets.top,
                 left = sysBarInsets.left,
                 right = sysBarInsets.right

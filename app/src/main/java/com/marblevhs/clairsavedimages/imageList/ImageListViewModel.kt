@@ -31,39 +31,31 @@ class ImageListViewModel(private val repo: Repo) : ViewModel() {
 
     var firstImagesInit = true
 
-    private val _query = MutableStateFlow("-1")
-    private val query: StateFlow<String> = _query.asStateFlow()
-
     private var albumState: Album = Album.CLAIR
+
+    private val query = MutableStateFlow(Pair(albumState, 1))
 
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val images: StateFlow<PagingData<LocalImage>> = query
-        .flatMapLatest { queryString ->
-            repo.getImagesPaging(queryString).cachedIn(viewModelScope)
+        .flatMapLatest { queryPair ->
+            repo.getImagesPaging(album = queryPair.first, rev = queryPair.second)
+                .cachedIn(viewModelScope)
         }
         .stateIn(viewModelScope, SharingStarted.Eagerly, PagingData.empty())
+        .also { viewModelScope.launch { repo.updateLastImage() } }
 
-    private suspend fun setQuery(queryString: String, rev: Int) {
-        _query.emit(queryString)
-        _listUiState.value = ImageListUiState.Success(rev = rev, album = albumState.albumId)
+    private suspend fun setQuery(queryPair: Pair<Album, Int>) {
+        query.emit(queryPair)
+        _listUiState.value =
+            ImageListUiState.Success(rev = queryPair.second, album = albumState.albumId)
     }
 
     fun initImages(rev: Int) {
         if (firstImagesInit) {
             viewModelScope.launch(Dispatchers.IO) {
-                var queryString = ""
-                queryString += if (albumState.albumId == "saved") {
-                    "saved"
-                } else {
-                    "public"
-                }
-                queryString += if (rev == 1) {
-                    "_descendant"
-                } else {
-                    "_ascendant"
-                }
-                setQuery(queryString = queryString, rev = rev)
+                val query = Pair<Album, Int>(albumState, rev)
+                setQuery(query)
             }
         }
     }
@@ -80,19 +72,8 @@ class ImageListViewModel(private val repo: Repo) : ViewModel() {
 
     fun loadImages(rev: Int) {
         viewModelScope.launch(Dispatchers.IO) {
-            var queryString = ""
-            queryString += if (albumState.albumId == "saved") {
-                "saved"
-            } else {
-                "public"
-            }
-            queryString += if (rev == 1) {
-                "_descendant"
-            } else {
-                "_ascendant"
-            }
             try {
-                setQuery(queryString = queryString, rev = rev)
+                setQuery(Pair(albumState, rev))
             } catch (e: Exception) {
                 _listUiState.emit(ImageListUiState.Error(exception = e))
             }

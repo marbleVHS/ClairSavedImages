@@ -5,10 +5,12 @@ import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -24,6 +26,7 @@ import com.marblevhs.clairsavedimages.R
 import com.marblevhs.clairsavedimages.data.LocalImage
 import com.marblevhs.clairsavedimages.databinding.ImageListFragmentBinding
 import com.marblevhs.clairsavedimages.extensions.appComponent
+import com.marblevhs.clairsavedimages.extensions.toPx
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -38,10 +41,11 @@ class ImageListFragment : Fragment(R.layout.image_list_fragment) {
     lateinit var viewModelFactory: ImageListViewModel.Factory
 
     private val viewModel: ImageListViewModel by viewModels { viewModelFactory }
+    private val mainViewModel: MainViewModel by activityViewModels { mainViewModelFactory }
     private val binding by viewBinding(ImageListFragmentBinding::bind)
     private var revUi: Int = 1
     private var albumUi: String = "saved"
-    private val adapter: ImageListAdapter = ImageListAdapter() { image -> adapterOnClick(image) }
+    private val adapter: ImageListAdapter = ImageListAdapter { image -> adapterOnClick(image) }
 
 
     override fun onAttach(context: Context) {
@@ -52,7 +56,10 @@ class ImageListFragment : Fragment(R.layout.image_list_fragment) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.initImages(revUi)
+        if (savedInstanceState == null) {
+            viewModel.initImages(revUi)
+        }
+        NotificationManagerCompat.from(requireContext()).cancel(R.string.new_image_notification_id)
         handleSystemInsets(binding.toolbar)
         binding.rvImages.adapter = adapter.withLoadStateHeaderAndFooter(
             header = ImageListLoaderStateAdapter(),
@@ -113,10 +120,12 @@ class ImageListFragment : Fragment(R.layout.image_list_fragment) {
             v.updatePadding(
                 top = sysBarInsets.top,
                 left = sysBarInsets.left,
-                right = sysBarInsets.right
+                right = sysBarInsets.right,
+                bottom = 8.toPx.toInt()
             )
             insets
         }
+
     }
 
 

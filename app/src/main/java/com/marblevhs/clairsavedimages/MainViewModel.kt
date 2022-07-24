@@ -60,22 +60,12 @@ class MainViewModel(private val repo: Repo) : ViewModel() {
     fun setDefaultNightMode(defaultNightMode: Int) {
         viewModelScope.launch(Dispatchers.IO) {
             repo.setDefaultNightMode(defaultNightMode)
-            getDefaultNightMode()
+            _defaultNightMode.value = defaultNightMode
         }
     }
 
     private val _defaultNightMode = MutableStateFlow(value = -1)
     val defaultNightMode: StateFlow<Int> = _defaultNightMode.asStateFlow()
-
-
-
-
-
-
-
-
-
-
 
 
 

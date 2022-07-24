@@ -5,11 +5,13 @@ import android.os.Build
 import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AppCompatDelegate
-import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
-import androidx.core.view.ViewCompat
+import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+import androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode
+import androidx.core.content.ContextCompat
+import androidx.core.content.PermissionChecker
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -19,14 +21,17 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.NavHostFragment
+import androidx.work.*
 import com.google.android.material.color.DynamicColors
 import com.marblevhs.clairsavedimages.extensions.appComponent
+import com.marblevhs.clairsavedimages.fetchingWorker.FetchingWorker
 import com.marblevhs.clairsavedimages.loginScreen.LoginActivityResultCallback
 import com.marblevhs.clairsavedimages.loginScreen.LoginFragmentDirections
 import com.vk.api.sdk.VK
 import com.vk.api.sdk.auth.VKScope
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 
@@ -35,7 +40,7 @@ class MainActivity : AppCompatActivity() {
     @Inject
     lateinit var viewModelFactory: MainViewModel.Factory
 
-    private var VkLoginActivityResultLauncher: ActivityResultLauncher<Collection<VKScope>>? = null
+    private var vkLoginActivityResultLauncher: ActivityResultLauncher<Collection<VKScope>>? = null
     lateinit var navController: NavController
     private val viewModel: MainViewModel by viewModels { viewModelFactory }
 
@@ -43,7 +48,14 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         this.appComponent.inject(this)
-        viewModel.getDefaultNightMode()
+        if (savedInstanceState == null) {
+            viewModel.getDefaultNightMode()
+            viewModel.getIsLogged()
+            requestNotificationPermission()
+            startFetchingWorker()
+        }
+        vkLoginActivityResultLauncher =
+            VK.login(this, LoginActivityResultCallback(viewModel))
         DynamicColors.applyToActivityIfAvailable(this)
         setContentView(R.layout.main_activity)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -55,12 +67,6 @@ class MainActivity : AppCompatActivity() {
         val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.NavHostFragment) as NavHostFragment
         navController = navHostFragment.navController
-
-        if (savedInstanceState == null) {
-            viewModel.getIsLogged()
-        }
-        VkLoginActivityResultLauncher =
-            VK.login(this, LoginActivityResultCallback(viewModel))
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.CREATED) {
                 launch {
@@ -75,6 +81,43 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+
+    }
+
+    private fun requestNotificationPermission() {
+        if (ContextCompat.checkSelfPermission(
+                this,
+                "android.permission.POST_NOTIFICATIONS"
+            ) == PermissionChecker.PERMISSION_DENIED
+        ) {
+            val requestPermissionLauncher =
+                registerForActivityResult(
+                    ActivityResultContracts.RequestPermission()
+                ) {}
+            requestPermissionLauncher.launch("android.permission.POST_NOTIFICATIONS")
+        }
+    }
+
+    private fun startFetchingWorker() {
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .build()
+
+        val work =
+            PeriodicWorkRequestBuilder<FetchingWorker>(
+                PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS, TimeUnit.MILLISECONDS,
+                PeriodicWorkRequest.MIN_PERIODIC_FLEX_MILLIS, TimeUnit.MILLISECONDS
+            )
+                .setConstraints(constraints)
+                .build()
+
+        val workManager = WorkManager.getInstance(this)
+        workManager.enqueueUniquePeriodicWork(
+            "Fetching work",
+            ExistingPeriodicWorkPolicy.REPLACE,
+            work
+        )
+
     }
 
 
@@ -98,7 +141,7 @@ class MainActivity : AppCompatActivity() {
 
 
     fun getAccessToken() {
-        VkLoginActivityResultLauncher?.launch(
+        vkLoginActivityResultLauncher?.launch(
             arrayListOf(
                 VKScope.WALL,
                 VKScope.PHOTOS,
@@ -111,14 +154,14 @@ class MainActivity : AppCompatActivity() {
         viewModel.clearLoginData()
     }
 
-    fun updateDefaultNightMode(defaultNightMode: Int = MODE_NIGHT_YES) {
-        AppCompatDelegate.setDefaultNightMode(defaultNightMode)
+    private fun updateDefaultNightMode(defaultNightMode: Int = MODE_NIGHT_FOLLOW_SYSTEM) {
+        setDefaultNightMode(defaultNightMode)
     }
 
 
     fun hideSystemBars() {
         val windowInsetsController =
-            ViewCompat.getWindowInsetsController(window.decorView) ?: return
+            WindowCompat.getInsetsController(window, window.decorView)
         windowInsetsController.systemBarsBehavior =
             WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         windowInsetsController.hide(WindowInsetsCompat.Type.systemBars())
@@ -126,7 +169,7 @@ class MainActivity : AppCompatActivity() {
 
     fun showSystemBars() {
         val windowInsetsController =
-            ViewCompat.getWindowInsetsController(window.decorView) ?: return
+            WindowCompat.getInsetsController(window, window.decorView)
         windowInsetsController.show(WindowInsetsCompat.Type.systemBars())
     }
 

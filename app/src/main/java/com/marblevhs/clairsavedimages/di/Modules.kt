@@ -2,6 +2,7 @@ package com.marblevhs.clairsavedimages.di
 
 
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
@@ -9,8 +10,11 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.room.Room
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKeys
 import com.marblevhs.clairsavedimages.MainActivity
 import com.marblevhs.clairsavedimages.favouritesList.FavouritesListFragment
+import com.marblevhs.clairsavedimages.fetchingWorker.FetchingWorker
 import com.marblevhs.clairsavedimages.imageDetails.ImageDetailsFragment
 import com.marblevhs.clairsavedimages.imageList.ImageListFragment
 import com.marblevhs.clairsavedimages.imageRepo.Repo
@@ -46,6 +50,7 @@ interface AppComponent {
     fun inject(imageDetailsFragment: ImageDetailsFragment)
     fun inject(mainActivity: MainActivity)
     fun inject(profileFragment: ProfileFragment)
+    fun inject(fetchingWorker: FetchingWorker)
 }
 
 @Module(includes = [AppBindModule::class])
@@ -59,6 +64,20 @@ object AppModule {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
         return retrofit.create()
+    }
+
+    @Provides
+    @AppScope
+    fun provideEncryptedSharedPreferences(context: Context): SharedPreferences {
+        val keyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
+        val sharedPreferences: SharedPreferences = EncryptedSharedPreferences.create(
+            "encryptedPrefs",
+            keyAlias,
+            context,
+            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+        )
+        return sharedPreferences
     }
 
     @Provides
