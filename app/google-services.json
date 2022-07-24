@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "253814238147",
+    "project_id": "clairsavedimages",
+    "storage_bucket": "clairsavedimages.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:253814238147:android:55449235d80ffe57b76b76",
+        "android_client_info": {
+          "package_name": "com.marblevhs.clairsavedimages"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "253814238147-bdg75c0qiss1umkes834m6q7ct6ftgf1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.marblevhs.clairsavedimages",
+            "certificate_hash": "f4afa0a9d43170cbf3c953438b95af108b6ab5cd"
+          }
+        },
+        {
+          "client_id": "253814238147-adcet6sudhodjj4p2hde2uegt372oidq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBjj8LpRyx435tjMbFGWkWd1RXOgZGjszQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "253814238147-adcet6sudhodjj4p2hde2uegt372oidq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

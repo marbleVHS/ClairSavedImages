@@ -26,8 +26,8 @@ class LoginFragment : Fragment() {
         binding?.loginButton?.setOnClickListener {
             (activity as MainActivity).getAccessToken()
         }
-    }
 
+    }
 
 
     companion object {

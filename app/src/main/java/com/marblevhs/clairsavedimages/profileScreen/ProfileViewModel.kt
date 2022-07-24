@@ -37,6 +37,10 @@ class ProfileViewModel(private val repo: Repo) : ViewModel() {
     }
 
 
+    fun testButtonInvoked() {
+
+
+    }
 
 
 }

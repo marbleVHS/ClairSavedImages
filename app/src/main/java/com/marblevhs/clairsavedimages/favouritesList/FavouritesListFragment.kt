@@ -22,6 +22,7 @@ import com.marblevhs.clairsavedimages.R
 import com.marblevhs.clairsavedimages.data.LocalImage
 import com.marblevhs.clairsavedimages.databinding.FavouritesListFragmentBinding
 import com.marblevhs.clairsavedimages.extensions.appComponent
+import com.marblevhs.clairsavedimages.extensions.toPx
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -78,7 +79,8 @@ class FavouritesListFragment : Fragment(R.layout.favourites_list_fragment) {
             binding.toolbar.updatePadding(
                 top = sysBarInsets.top,
                 left = sysBarInsets.left,
-                right = sysBarInsets.right
+                right = sysBarInsets.right,
+                bottom = 8.toPx.toInt()
             )
             insets
         }

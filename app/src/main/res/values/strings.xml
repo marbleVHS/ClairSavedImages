@@ -7,6 +7,7 @@
     <string name="load_button_text">Load Clair saved images</string>
     <string name="zoom_in_text">Zoom in</string>
     <string name="edit">edit</string>
+    <string name="new_image_notification_id">1001</string>
     <string name="top_menu_sort_text">Sort</string>
     <string name="top_menu_switch_source_text">Switch saved/public</string>
     <string name="top_menu_refresh_text">Refresh</string>
