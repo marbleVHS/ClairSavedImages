@@ -77,7 +77,7 @@ class ImageListFragment : Fragment(R.layout.image_list_fragment) {
                             is ImageListUiState.Success -> {
                                 updateUi(it.rev, it.album)
                             }
-                            is ImageListUiState.Error -> showError(it.exception.message)
+                            is ImageListUiState.Error -> showError(it.exception)
                             else -> {}
                         }
                     }
@@ -104,7 +104,7 @@ class ImageListFragment : Fragment(R.layout.image_list_fragment) {
                         binding.swipeRefreshLayout.isRefreshing = false
                         binding.listLoader.visibility = View.GONE
                         if (loadStates.refresh is LoadState.Error) {
-                            showError((loadStates.refresh as LoadState.Error).error.message)
+                            showError((loadStates.refresh as LoadState.Error).error)
                         }
                     }
 
@@ -151,12 +151,16 @@ class ImageListFragment : Fragment(R.layout.image_list_fragment) {
             .navigate(NavBarFragmentDirections.actionNavBarFragmentToImageDetailsFragment(image))
     }
 
-    private fun showError(errorMessage: String?) {
+    private fun showError(exception: Throwable) {
         binding.swipeRefreshLayout.isRefreshing = false
         binding.listLoader.visibility = View.GONE
-        Snackbar.make(binding.coordinatorLayout as View, "Network error", Snackbar.LENGTH_SHORT)
+        Snackbar.make(
+            binding.coordinatorLayout as View,
+            "Images aren't available",
+            Snackbar.LENGTH_SHORT
+        )
             .show()
-        Log.e("RESP", errorMessage ?: "0")
+        Log.e("RESP", exception.localizedMessage ?: "0")
     }
 
 

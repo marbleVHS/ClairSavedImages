@@ -24,9 +24,9 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.work.*
 import com.google.android.material.color.DynamicColors
 import com.marblevhs.clairsavedimages.extensions.appComponent
-import com.marblevhs.clairsavedimages.fetchingWorker.FetchingWorker
 import com.marblevhs.clairsavedimages.loginScreen.LoginActivityResultCallback
 import com.marblevhs.clairsavedimages.loginScreen.LoginFragmentDirections
+import com.marblevhs.clairsavedimages.workers.FetchingWorker
 import com.vk.api.sdk.VK
 import com.vk.api.sdk.auth.VKScope
 import kotlinx.coroutines.flow.collectLatest
@@ -55,7 +55,7 @@ class MainActivity : AppCompatActivity() {
             startFetchingWorker()
         }
         vkLoginActivityResultLauncher =
-            VK.login(this, LoginActivityResultCallback(viewModel))
+            VK.login(this, LoginActivityResultCallback(viewModel, applicationContext))
         DynamicColors.applyToActivityIfAvailable(this)
         setContentView(R.layout.main_activity)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {

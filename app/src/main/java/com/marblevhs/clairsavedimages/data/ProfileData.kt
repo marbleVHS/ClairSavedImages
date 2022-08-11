@@ -10,7 +10,7 @@ data class UserProfileResponse(
 
 data class UserProfile(
     @SerializedName("id")
-    val id: String,
+    val id: Int,
     @SerializedName("first_name")
     val firstName: String,
     @SerializedName("last_name")

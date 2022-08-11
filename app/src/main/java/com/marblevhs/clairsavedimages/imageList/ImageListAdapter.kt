@@ -27,7 +27,7 @@ class ImageListAdapter(private val onClick: (LocalImage) -> Unit) :
         private val ivImage: ImageView = view.findViewById(R.id.ivImage)
         private val constraintLayout: ConstraintLayout = view.findViewById(R.id.ConstraintLayout)
         private val cardView: CardView = view.findViewById(R.id.cardView)
-        var currentImage: LocalImage? = null
+        private var currentImage: LocalImage? = null
         val set = ConstraintSet()
 
         fun bind(image: LocalImage) {

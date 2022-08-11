@@ -13,16 +13,20 @@ import androidx.room.Room
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKeys
 import com.marblevhs.clairsavedimages.MainActivity
+import com.marblevhs.clairsavedimages.MessagingService
 import com.marblevhs.clairsavedimages.favouritesList.FavouritesListFragment
-import com.marblevhs.clairsavedimages.fetchingWorker.FetchingWorker
 import com.marblevhs.clairsavedimages.imageDetails.ImageDetailsFragment
 import com.marblevhs.clairsavedimages.imageList.ImageListFragment
 import com.marblevhs.clairsavedimages.imageRepo.Repo
 import com.marblevhs.clairsavedimages.imageRepo.RepoImpl
+import com.marblevhs.clairsavedimages.network.HerokuService
 import com.marblevhs.clairsavedimages.network.ImageService
 import com.marblevhs.clairsavedimages.network.ProfileService
 import com.marblevhs.clairsavedimages.profileScreen.ProfileFragment
 import com.marblevhs.clairsavedimages.room.DatabaseStorage
+import com.marblevhs.clairsavedimages.workers.FCMRegistrationWorker
+import com.marblevhs.clairsavedimages.workers.FetchingWorker
+import com.marblevhs.clairsavedimages.workers.UserRegistrationWorker
 import dagger.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -51,6 +55,9 @@ interface AppComponent {
     fun inject(mainActivity: MainActivity)
     fun inject(profileFragment: ProfileFragment)
     fun inject(fetchingWorker: FetchingWorker)
+    fun inject(userRegistrationWorker: UserRegistrationWorker)
+    fun inject(messagingService: MessagingService)
+    fun inject(fcmRegistrationWorker: FCMRegistrationWorker)
 }
 
 @Module(includes = [AppBindModule::class])
@@ -61,6 +68,16 @@ object AppModule {
     fun provideImageService(): ImageService {
         val retrofit = Retrofit.Builder()
             .baseUrl("https://api.vk.com/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+        return retrofit.create()
+    }
+
+    @Provides
+    @AppScope
+    fun provideHerokuService(): HerokuService {
+        val retrofit = Retrofit.Builder()
+            .baseUrl("https://clairesavedimages-backend.herokuapp.com/")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
         return retrofit.create()
