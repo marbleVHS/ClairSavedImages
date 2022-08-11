@@ -1,5 +1,6 @@
 plugins {
     id 'com.android.application'
+    id("com.google.devtools.ksp").version("1.7.10-1.0.6")
     id 'kotlin-android'
     id 'kotlin-kapt'
     id 'kotlin-parcelize'
@@ -61,7 +62,6 @@ dependencies {
 
     implementation(project(":core:ui"))
 
-
     implementation ("com.github.kirich1409:viewbindingpropertydelegate-noreflection:1.5.6")
 
     implementation ('androidx.appcompat:appcompat:1.4.2')
@@ -95,8 +95,11 @@ dependencies {
     implementation ('com.squareup.okhttp3:logging-interceptor:5.0.0-alpha.9')
     implementation ('io.coil-kt:coil:2.1.0')
     implementation ('io.coil-kt:coil-gif:2.1.0')
-    implementation ('com.google.code.gson:gson:2.9.1')
-    implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
+
+    ksp("com.squareup.moshi:moshi-kotlin-codegen:1.13.0")
+    implementation("com.squareup.moshi:moshi:1.13.0")
+    implementation ('com.squareup.retrofit2:converter-moshi:2.4.0')
+
     implementation ("androidx.paging:paging-runtime-ktx:3.1.1")
 
     implementation ("androidx.datastore:datastore-preferences:1.0.0")

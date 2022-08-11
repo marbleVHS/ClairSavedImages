@@ -1,20 +1,22 @@
 package com.marblevhs.clairsavedimages.data
 
-import com.google.gson.annotations.SerializedName
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
-
+@JsonClass(generateAdapter = true)
 data class UserProfileResponse(
-    @SerializedName("response")
+    @Json(name = "response")
     val userProfiles: List<UserProfile>
 )
 
+@JsonClass(generateAdapter = true)
 data class UserProfile(
-    @SerializedName("id")
+    @Json(name = "id")
     val id: Int,
-    @SerializedName("first_name")
+    @Json(name = "first_name")
     val firstName: String,
-    @SerializedName("last_name")
+    @Json(name = "last_name")
     val lastName: String,
-    @SerializedName("photo_400_orig")
+    @Json(name = "photo_400_orig")
     val profilePicUrl: String
 )

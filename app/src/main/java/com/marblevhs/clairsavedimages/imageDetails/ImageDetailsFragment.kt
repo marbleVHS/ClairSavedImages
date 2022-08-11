@@ -33,6 +33,7 @@ class ImageDetailsFragment : Fragment(R.layout.image_details_fragment) {
     @Inject
     lateinit var viewModelFactory: ImageDetailsViewModel.Factory
 
+
     private val binding by viewBinding(ImageDetailsFragmentBinding::bind)
     private val viewModel: ImageDetailsViewModel by viewModels { viewModelFactory }
 
