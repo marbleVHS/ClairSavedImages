@@ -13,22 +13,28 @@ import androidx.room.Room
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKeys
 import com.marblevhs.clairsavedimages.MainActivity
+import com.marblevhs.clairsavedimages.MessagingService
 import com.marblevhs.clairsavedimages.favouritesList.FavouritesListFragment
-import com.marblevhs.clairsavedimages.fetchingWorker.FetchingWorker
 import com.marblevhs.clairsavedimages.imageDetails.ImageDetailsFragment
 import com.marblevhs.clairsavedimages.imageList.ImageListFragment
 import com.marblevhs.clairsavedimages.imageRepo.Repo
 import com.marblevhs.clairsavedimages.imageRepo.RepoImpl
+import com.marblevhs.clairsavedimages.network.HerokuService
 import com.marblevhs.clairsavedimages.network.ImageService
 import com.marblevhs.clairsavedimages.network.ProfileService
 import com.marblevhs.clairsavedimages.profileScreen.ProfileFragment
 import com.marblevhs.clairsavedimages.room.DatabaseStorage
+import com.marblevhs.clairsavedimages.workers.FCMRegistrationWorker
+import com.marblevhs.clairsavedimages.workers.FetchingWorker
+import com.marblevhs.clairsavedimages.workers.UserRegistrationWorker
+import com.squareup.moshi.Moshi
 import dagger.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import okhttp3.OkHttpClient
 import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.create
 import javax.inject.Scope
 
@@ -51,6 +57,9 @@ interface AppComponent {
     fun inject(mainActivity: MainActivity)
     fun inject(profileFragment: ProfileFragment)
     fun inject(fetchingWorker: FetchingWorker)
+    fun inject(userRegistrationWorker: UserRegistrationWorker)
+    fun inject(messagingService: MessagingService)
+    fun inject(fcmRegistrationWorker: FCMRegistrationWorker)
 }
 
 @Module(includes = [AppBindModule::class])
@@ -58,10 +67,34 @@ object AppModule {
 
     @Provides
     @AppScope
-    fun provideImageService(): ImageService {
+    fun provideImageService(client: OkHttpClient, moshi: Moshi): ImageService {
         val retrofit = Retrofit.Builder()
             .baseUrl("https://api.vk.com/")
-            .addConverterFactory(GsonConverterFactory.create())
+            .client(client)
+            .addConverterFactory(MoshiConverterFactory.create(moshi))
+            .build()
+        return retrofit.create()
+    }
+
+    @Provides
+    @AppScope
+    fun provideSerializer(): Moshi {
+        return Moshi.Builder().build()
+    }
+
+    @Provides
+    @AppScope
+    fun provideOkHttpClient(): OkHttpClient {
+        return OkHttpClient()
+    }
+
+    @Provides
+    @AppScope
+    fun provideHerokuService(client: OkHttpClient, moshi: Moshi): HerokuService {
+        val retrofit = Retrofit.Builder()
+            .baseUrl("https://clairesavedimages-backend.herokuapp.com/")
+            .client(client)
+            .addConverterFactory(MoshiConverterFactory.create(moshi))
             .build()
         return retrofit.create()
     }
@@ -82,10 +115,11 @@ object AppModule {
 
     @Provides
     @AppScope
-    fun provideProfileService(): ProfileService {
+    fun provideProfileService(client: OkHttpClient, moshi: Moshi): ProfileService {
         val retrofit = Retrofit.Builder()
             .baseUrl("https://api.vk.com/")
-            .addConverterFactory(GsonConverterFactory.create())
+            .client(client)
+            .addConverterFactory(MoshiConverterFactory.create(moshi))
             .build()
         return retrofit.create()
     }

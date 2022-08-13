@@ -34,7 +34,7 @@ class ImageDetailsViewModel(private val repo: Repo) : ViewModel() {
     )
 
     fun newImageSelected(image: LocalImage) {
-        viewModelScope.launch(Dispatchers.Default) {
+        viewModelScope.launch(Dispatchers.IO) {
             _detailsUiState.value = ImageDetailsUiState.LoadingState
             try {
                 val imageBelongingToLists = coroutineScope {
