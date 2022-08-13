@@ -1,5 +1,6 @@
 package com.marblevhs.clairsavedimages
 
+import android.annotation.SuppressLint
 import androidx.work.*
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.marblevhs.clairsavedimages.extensions.appComponent
@@ -19,6 +20,7 @@ class MessagingService : FirebaseMessagingService() {
         this.appComponent.inject(this)
     }
 
+    @SuppressLint("RestrictedApi")
     override fun onNewToken(token: String) {
         super.onNewToken(token)
 
