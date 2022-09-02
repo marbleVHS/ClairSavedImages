@@ -16,7 +16,6 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.google.android.material.snackbar.Snackbar
 import com.marblevhs.clairsavedimages.MainActivity
-import com.marblevhs.clairsavedimages.MainViewModel
 import com.marblevhs.clairsavedimages.NavBarFragmentDirections
 import com.marblevhs.clairsavedimages.R
 import com.marblevhs.clairsavedimages.data.LocalImage
@@ -30,16 +29,13 @@ import javax.inject.Inject
 class FavouritesListFragment : Fragment(R.layout.favourites_list_fragment) {
 
     @Inject
-    lateinit var mainViewModelFactory: MainViewModel.Factory
-
-    @Inject
     lateinit var viewModelFactory: FavouritesListViewModel.Factory
+
 
     private val viewModel: FavouritesListViewModel by viewModels { viewModelFactory }
     private val binding by viewBinding(FavouritesListFragmentBinding::bind)
     private var revUi: Int = 1
-    private val adapter: FavouritesListAdapter =
-        FavouritesListAdapter { image -> adapterOnClick(image) }
+    private val adapter = FavouritesListAdapter { image -> adapterOnClick(image) }
 
 
     override fun onAttach(context: Context) {
@@ -49,6 +45,7 @@ class FavouritesListFragment : Fragment(R.layout.favourites_list_fragment) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         handleSystemInsets(view)
         viewModel.initFavs(revUi)
         binding.rvImages.adapter = adapter

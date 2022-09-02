@@ -15,7 +15,6 @@ import by.kirich1409.viewbindingdelegate.viewBinding
 import coil.load
 import com.google.android.material.snackbar.Snackbar
 import com.marblevhs.clairsavedimages.MainActivity
-import com.marblevhs.clairsavedimages.MainViewModel
 import com.marblevhs.clairsavedimages.R
 import com.marblevhs.clairsavedimages.data.LocalImage
 import com.marblevhs.clairsavedimages.databinding.ImageDetailsFragmentBinding
@@ -27,11 +26,10 @@ import javax.inject.Inject
 
 class ImageDetailsFragment : Fragment(R.layout.image_details_fragment) {
 
-    @Inject
-    lateinit var mainViewModelFactory: MainViewModel.Factory
 
     @Inject
     lateinit var viewModelFactory: ImageDetailsViewModel.Factory
+
 
     private val binding by viewBinding(ImageDetailsFragmentBinding::bind)
     private val viewModel: ImageDetailsViewModel by viewModels { viewModelFactory }

@@ -18,7 +18,7 @@
             android:layout_height="match_parent"
             app:title="Profile"
             app:titleCentered="true" />
-        
+
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -142,11 +142,15 @@
             </RadioGroup>
 
             <Button
-                android:id="@+id/testButton"
-                style="@style/Widget.Material3.ExtendedFloatingActionButton.Tertiary"
+                android:id="@+id/buttonErrorLogOut"
+                style="@style/Widget.Material3.Button.ElevatedButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Test" />
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:text="Sign out"
+                android:visibility="gone"
+                tools:visibility="visible" />
 
 
         </LinearLayout>

@@ -7,7 +7,7 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.marblevhs.clairsavedimages.data.Album
 import com.marblevhs.clairsavedimages.data.LocalImage
-import com.marblevhs.clairsavedimages.imageRepo.Repo
+import com.marblevhs.clairsavedimages.monoRepo.Repo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
@@ -24,60 +24,48 @@ class ImageListViewModel(private val repo: Repo) : ViewModel() {
     }
 
 
-    private val listDefaultState = ImageListUiState.InitLoadingState
-    private val _listUiState = MutableStateFlow<ImageListUiState>(listDefaultState)
-    val listUiState: StateFlow<ImageListUiState> = _listUiState.asStateFlow()
-
-
     var firstImagesInit = true
 
-    private var albumState: Album = Album.CLAIR
 
-    private val query = MutableStateFlow(Pair(albumState, 1))
+    private val albumState: MutableStateFlow<Album> = MutableStateFlow(Album.DEBUG)
+    private val rev = MutableStateFlow(1)
 
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val images: StateFlow<PagingData<LocalImage>> = query
-        .flatMapLatest { queryPair ->
-            repo.getImagesPaging(album = queryPair.first, rev = queryPair.second)
-                .cachedIn(viewModelScope)
-        }
-        .stateIn(viewModelScope, SharingStarted.Eagerly, PagingData.empty())
-        .also { viewModelScope.launch { repo.updateLastImage() } }
-
-    private suspend fun setQuery(queryPair: Pair<Album, Int>) {
-        query.emit(queryPair)
-        _listUiState.value =
-            ImageListUiState.Success(rev = queryPair.second, album = albumState.albumId)
-    }
-
-    fun initImages(rev: Int) {
-        if (firstImagesInit) {
-            viewModelScope.launch(Dispatchers.IO) {
-                val query = Pair<Album, Int>(albumState, rev)
-                setQuery(query)
+    val imagesFlow: StateFlow<PagingData<LocalImage>> =
+        albumState.combine(rev) { album, rev -> Pair(album, rev) }
+            .flatMapLatest { queryPair ->
+                repo.getImagesPaging(album = queryPair.first, rev = queryPair.second)
+                    .cachedIn(viewModelScope)
             }
+            .stateIn(viewModelScope, SharingStarted.Eagerly, PagingData.empty())
+
+    val listUiState: StateFlow<ImageListUiState> =
+        albumState.combine(rev) { album, rev ->
+            ImageListUiState.Success(rev, album.albumId)
         }
-    }
+            .stateIn(viewModelScope, SharingStarted.Eagerly, ImageListUiState.InitLoadingState)
 
-
-    fun switchAlbumState(rev: Int) {
-        albumState = if (albumState == Album.CLAIR) {
+    fun switchAlbumState() {
+        albumState.value = if (albumState.value == Album.DEBUG) {
             Album.PUBLIC
         } else {
-            Album.CLAIR
+            Album.DEBUG
         }
-        loadImages(rev = rev)
     }
 
-    fun loadImages(rev: Int) {
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                setQuery(Pair(albumState, rev))
-            } catch (e: Exception) {
-                _listUiState.emit(ImageListUiState.Error(exception = e))
-            }
 
+    fun switchRev() {
+        rev.value = if (rev.value == 1) {
+            0
+        } else {
+            1
+        }
+    }
+
+    fun saveLatestSeenImage() {
+        viewModelScope.launch(Dispatchers.IO) {
+            repo.updateLastImage()
         }
     }
 
@@ -85,7 +73,7 @@ class ImageListViewModel(private val repo: Repo) : ViewModel() {
 }
 
 sealed class ImageListUiState {
-    data class Success(val rev: Int, val album: String) : ImageListUiState()
+    data class Success(val rev: Int, val albumId: String) : ImageListUiState()
     data class Error(val exception: Throwable) : ImageListUiState()
     object InitLoadingState : ImageListUiState()
 }

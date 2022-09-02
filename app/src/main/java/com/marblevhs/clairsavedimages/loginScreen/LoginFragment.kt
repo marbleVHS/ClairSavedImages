@@ -24,7 +24,7 @@ class LoginFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding?.loginButton?.setOnClickListener {
-            (activity as MainActivity).getAccessToken()
+            (activity as MainActivity).startVkLoginActivity()
         }
 
     }

@@ -1,4 +1,4 @@
-package com.marblevhs.clairsavedimages.fetchingWorker
+package com.marblevhs.clairsavedimages.workers
 
 import android.app.PendingIntent
 import android.content.Context
@@ -8,10 +8,11 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.TaskStackBuilder
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import com.marblevhs.clairsavedimages.BuildConfig
 import com.marblevhs.clairsavedimages.MainActivity
 import com.marblevhs.clairsavedimages.R
 import com.marblevhs.clairsavedimages.extensions.appComponent
-import com.marblevhs.clairsavedimages.imageRepo.Repo
+import com.marblevhs.clairsavedimages.monoRepo.Repo
 import javax.inject.Inject
 
 class FetchingWorker constructor(appContext: Context, params: WorkerParameters) : CoroutineWorker(
@@ -24,15 +25,6 @@ class FetchingWorker constructor(appContext: Context, params: WorkerParameters) 
 
     override suspend fun doWork(): Result {
 
-        val debugNotif = NotificationCompat.Builder(applicationContext, "FetchingWorkerID")
-            .setSmallIcon(R.drawable.ic_baseline_favorite_36)
-            .setContentTitle("Debug")
-            .setContentText("FetchingWorker сработал")
-            .setAutoCancel(true)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT).build()
-        with(NotificationManagerCompat.from(applicationContext)) {
-            notify(2002, debugNotif)
-        }
 
         try {
             this.applicationContext.appComponent.inject(this)
@@ -58,7 +50,19 @@ class FetchingWorker constructor(appContext: Context, params: WorkerParameters) 
                 with(NotificationManagerCompat.from(applicationContext)) {
                     notify(R.string.new_image_notification_id, notif)
                 }
+            } else if (BuildConfig.DEBUG) {
+                val debugNotif =
+                    NotificationCompat.Builder(applicationContext, "FetchingWorkerID")
+                        .setSmallIcon(R.drawable.ic_baseline_favorite_36)
+                        .setContentTitle("Debug")
+                        .setContentText("FetchingWorker сработал")
+                        .setAutoCancel(true)
+                        .setPriority(NotificationCompat.PRIORITY_DEFAULT).build()
+                with(NotificationManagerCompat.from(applicationContext)) {
+                    notify(2002, debugNotif)
+                }
             }
+
         } catch (e: Exception) {
             return Result.retry()
         }

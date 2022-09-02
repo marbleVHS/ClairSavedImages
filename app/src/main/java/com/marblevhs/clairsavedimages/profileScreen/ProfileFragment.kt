@@ -47,9 +47,7 @@ class ProfileFragment : Fragment(R.layout.profile_fragment) {
         super.onViewCreated(view, savedInstanceState)
         handleSystemInsets(binding.appbarLayout)
         initListeners()
-        if (savedInstanceState == null) {
-            viewModel.initProfile()
-        }
+        viewModel.initProfile()
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
@@ -72,7 +70,7 @@ class ProfileFragment : Fragment(R.layout.profile_fragment) {
                     }
                 }
                 launch {
-                    mainViewModel.defaultNightMode.collect {
+                    mainViewModel.defaultNightModeFlow.collect {
                         when (it) {
                             NightMode.SYSTEM.value -> {
                                 binding.rbSystemDefault.isChecked = true
@@ -109,6 +107,7 @@ class ProfileFragment : Fragment(R.layout.profile_fragment) {
         binding.tvProfileName.visibility = View.VISIBLE
         binding.ivProfileImage.visibility = View.VISIBLE
         binding.buttonLogOut.visibility = View.VISIBLE
+        binding.buttonErrorLogOut.visibility = View.GONE
     }
 
     private fun showError(error: String?) {
@@ -122,6 +121,7 @@ class ProfileFragment : Fragment(R.layout.profile_fragment) {
         binding.tvProfileName.visibility = View.INVISIBLE
         binding.ivProfileImage.visibility = View.INVISIBLE
         binding.buttonLogOut.visibility = View.INVISIBLE
+        binding.buttonErrorLogOut.visibility = View.VISIBLE
     }
 
     private fun handleSystemInsets(view: View) {
@@ -144,6 +144,12 @@ class ProfileFragment : Fragment(R.layout.profile_fragment) {
 
     private fun initListeners() {
         binding.buttonLogOut.setOnClickListener {
+            SignOutConfirmationDialogFragment().show(
+                childFragmentManager,
+                SignOutConfirmationDialogFragment.TAG
+            )
+        }
+        binding.buttonErrorLogOut.setOnClickListener {
             SignOutConfirmationDialogFragment().show(
                 childFragmentManager,
                 SignOutConfirmationDialogFragment.TAG

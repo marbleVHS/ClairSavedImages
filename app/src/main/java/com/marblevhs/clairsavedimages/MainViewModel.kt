@@ -4,12 +4,11 @@ package com.marblevhs.clairsavedimages
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.marblevhs.clairsavedimages.imageRepo.Repo
+import com.marblevhs.clairsavedimages.monoRepo.Repo
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -24,49 +23,32 @@ class MainViewModel(private val repo: Repo) : ViewModel() {
     }
 
 
-    fun getIsLogged() {
-        viewModelScope.launch(Dispatchers.IO) {
-            val isLogged = async { repo.getIsLogged() }
-            _isLoggedFlow.value = isLogged.await()
-        }
-    }
-
     fun clearLoginData() {
         viewModelScope.launch(Dispatchers.IO) {
             repo.clearLoginData()
-            getIsLogged()
         }
     }
 
     fun saveAccessToken(accessKey: String) {
         viewModelScope.launch(Dispatchers.IO) {
             repo.saveAccessToken(accessKey)
-            getIsLogged()
         }
     }
 
-    private val _isLoggedFlow = MutableStateFlow(value = false)
-    val isLoggedFlow: StateFlow<Boolean> = _isLoggedFlow.asStateFlow()
 
-    fun getDefaultNightMode() {
-        viewModelScope.launch(Dispatchers.IO) {
-            val defaultNightMode = async { repo.getDefaultNightMode() }
-            _defaultNightMode.value = defaultNightMode.await()
-        }
-    }
-
+    val isLoggedFlow: StateFlow<Boolean> =
+        repo.getIsLoggedFlow().stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
 
     fun setDefaultNightMode(defaultNightMode: Int) {
         viewModelScope.launch(Dispatchers.IO) {
             repo.setDefaultNightMode(defaultNightMode)
-            _defaultNightMode.value = defaultNightMode
         }
     }
 
-    private val _defaultNightMode = MutableStateFlow(value = -1)
-    val defaultNightMode: StateFlow<Int> = _defaultNightMode.asStateFlow()
 
+    val defaultNightModeFlow: StateFlow<Int> =
+        repo.getDefaultNightModeFlow().stateIn(viewModelScope, SharingStarted.Eagerly, -1)
 
 
 }

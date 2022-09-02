@@ -10,7 +10,6 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -20,9 +19,9 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.google.android.material.snackbar.Snackbar
 import com.marblevhs.clairsavedimages.MainActivity
-import com.marblevhs.clairsavedimages.MainViewModel
 import com.marblevhs.clairsavedimages.NavBarFragmentDirections
 import com.marblevhs.clairsavedimages.R
+import com.marblevhs.clairsavedimages.data.Album
 import com.marblevhs.clairsavedimages.data.LocalImage
 import com.marblevhs.clairsavedimages.databinding.ImageListFragmentBinding
 import com.marblevhs.clairsavedimages.extensions.appComponent
@@ -34,19 +33,15 @@ import javax.inject.Inject
 
 class ImageListFragment : Fragment(R.layout.image_list_fragment) {
 
-    @Inject
-    lateinit var mainViewModelFactory: MainViewModel.Factory
 
     @Inject
     lateinit var viewModelFactory: ImageListViewModel.Factory
 
     private val viewModel: ImageListViewModel by viewModels { viewModelFactory }
-    private val mainViewModel: MainViewModel by activityViewModels { mainViewModelFactory }
     private val binding by viewBinding(ImageListFragmentBinding::bind)
-    private var revUi: Int = 1
-    private var albumUi: String = "saved"
-    private val adapter: ImageListAdapter = ImageListAdapter { image -> adapterOnClick(image) }
-
+    private val adapter: ImageListAdapter =
+        ImageListAdapter { image -> adapterOnClick(image) }
+    private var albumIdUi: String = Album.DEBUG.albumId
 
     override fun onAttach(context: Context) {
         context.appComponent.inject(this)
@@ -57,7 +52,7 @@ class ImageListFragment : Fragment(R.layout.image_list_fragment) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         if (savedInstanceState == null) {
-            viewModel.initImages(revUi)
+            viewModel.saveLatestSeenImage()
         }
         NotificationManagerCompat.from(requireContext()).cancel(R.string.new_image_notification_id)
         handleSystemInsets(binding.toolbar)
@@ -69,49 +64,54 @@ class ImageListFragment : Fragment(R.layout.image_list_fragment) {
             StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL)
         initListeners()
         assetColorSchemeToSwipeRefreshLayout()
-        viewLifecycleOwner.lifecycleScope.launch {
-            launch {
-                viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                    viewModel.listUiState.collect {
-                        when (it) {
-                            is ImageListUiState.Success -> {
-                                updateUi(it.rev, it.album)
-                            }
-                            is ImageListUiState.Error -> showError(it.exception.message)
-                            else -> {}
-                        }
-                    }
-                }
-            }
-            launch {
-                viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                    viewModel.images.collectLatest {
-                        adapter.submitData(it)
-                    }
-                }
-            }
-            launch {
-                adapter.loadStateFlow.collectLatest { loadStates ->
-                    if (loadStates.refresh == LoadState.Loading) {
-                        if (!viewModel.firstImagesInit) {
-                            binding.swipeRefreshLayout.isRefreshing = true
-                            binding.listLoader.visibility = View.GONE
-                        } else {
-                            binding.listLoader.visibility = View.VISIBLE
-                            viewModel.firstImagesInit = false
-                        }
-                    } else {
-                        binding.swipeRefreshLayout.isRefreshing = false
-                        binding.listLoader.visibility = View.GONE
-                        if (loadStates.refresh is LoadState.Error) {
-                            showError((loadStates.refresh as LoadState.Error).error.message)
-                        }
-                    }
 
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.CREATED) {
+                launch { collectUiState() }
+                launch { collectImagesList() }
+                launch { collectLoadState() }
+            }
+        }
+    }
+
+    private suspend fun collectUiState() {
+        viewModel.listUiState.collect {
+            when (it) {
+                is ImageListUiState.Success -> {
+                    albumIdUi = it.albumId
+                }
+                is ImageListUiState.Error -> showError(it.exception)
+                is ImageListUiState.InitLoadingState -> {}
+
+            }
+        }
+    }
+
+    private suspend fun collectImagesList() {
+        viewModel.imagesFlow.collectLatest {
+            adapter.submitData(it)
+        }
+    }
+
+    private suspend fun collectLoadState() {
+        adapter.loadStateFlow.collectLatest { loadStates ->
+            if (loadStates.refresh == LoadState.Loading) {
+                if (!viewModel.firstImagesInit) {
+                    binding.swipeRefreshLayout.isRefreshing = true
+                    binding.listLoader.visibility = View.GONE
+                } else {
+                    binding.listLoader.visibility = View.VISIBLE
+                }
+            } else {
+                updateTopbarTitle(albumIdUi)
+                viewModel.firstImagesInit = false
+                binding.swipeRefreshLayout.isRefreshing = false
+                binding.listLoader.visibility = View.GONE
+                if (loadStates.refresh is LoadState.Error) {
+                    showError((loadStates.refresh as LoadState.Error).error)
                 }
             }
         }
-
     }
 
     private fun handleSystemInsets(view: View) {
@@ -151,19 +151,21 @@ class ImageListFragment : Fragment(R.layout.image_list_fragment) {
             .navigate(NavBarFragmentDirections.actionNavBarFragmentToImageDetailsFragment(image))
     }
 
-    private fun showError(errorMessage: String?) {
+    private fun showError(exception: Throwable) {
         binding.swipeRefreshLayout.isRefreshing = false
         binding.listLoader.visibility = View.GONE
-        Snackbar.make(binding.coordinatorLayout as View, "Network error", Snackbar.LENGTH_SHORT)
+        Snackbar.make(
+            binding.coordinatorLayout as View,
+            "Images aren't available",
+            Snackbar.LENGTH_SHORT
+        )
             .show()
-        Log.e("RESP", errorMessage ?: "0")
+        Log.e("RESP", exception.localizedMessage ?: "no message? :<")
     }
 
 
-    private fun updateUi(rev: Int, album: String) {
-        revUi = rev
-        albumUi = album
-        if (album == "saved") {
+    private fun updateTopbarTitle(albumId: String) {
+        if (albumId == "saved") {
             binding.toolbar.title = "Claire saved pictures"
         } else {
             binding.toolbar.title = "Claire public pictures"
@@ -178,14 +180,7 @@ class ImageListFragment : Fragment(R.layout.image_list_fragment) {
         binding.toolbar.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.menu_sort -> {
-                    revUi = if (revUi == 1) {
-                        0
-
-                    } else {
-                        1
-
-                    }
-                    viewModel.loadImages(revUi)
+                    viewModel.switchRev()
                     true
                 }
                 R.id.menu_refresh -> {
@@ -193,7 +188,7 @@ class ImageListFragment : Fragment(R.layout.image_list_fragment) {
                     true
                 }
                 R.id.menu_switch -> {
-                    viewModel.switchAlbumState(rev = revUi)
+                    viewModel.switchAlbumState()
                     true
                 }
                 R.id.info -> {
