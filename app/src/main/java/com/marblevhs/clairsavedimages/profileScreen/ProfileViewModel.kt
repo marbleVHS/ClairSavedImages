@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.marblevhs.clairsavedimages.data.UserProfile
-import com.marblevhs.clairsavedimages.imageRepo.Repo
+import com.marblevhs.clairsavedimages.monoRepo.Repo
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -27,20 +27,18 @@ class ProfileViewModel(private val repo: Repo) : ViewModel() {
     val profileUiState: StateFlow<ProfileUiState> = _profileUiState.asStateFlow()
 
     fun initProfile() {
-        viewModelScope.launch {
-            try {
-                _profileUiState.value = ProfileUiState.Success(repo.getProfile())
-            } catch (e: Exception) {
-                _profileUiState.value = ProfileUiState.Error(exception = e)
+        if (profileUiState.value !is ProfileUiState.Success) {
+            viewModelScope.launch {
+                try {
+                    _profileUiState.value = ProfileUiState.Success(repo.getProfile())
+                } catch (e: Exception) {
+                    _profileUiState.value = ProfileUiState.Error(exception = e)
+                }
             }
         }
-    }
-
-
-    fun testButtonInvoked() {
-
 
     }
+    
 
 
 }

@@ -55,7 +55,7 @@ class ImageListAdapter(private val onClick: (LocalImage) -> Unit) :
 
     object ImageDiffCallback : DiffUtil.ItemCallback<LocalImage>() {
         override fun areContentsTheSame(oldItem: LocalImage, newItem: LocalImage): Boolean {
-            return oldItem == newItem
+            return oldItem.thumbnailUrl == newItem.thumbnailUrl
         }
 
         override fun areItemsTheSame(oldItem: LocalImage, newItem: LocalImage): Boolean {

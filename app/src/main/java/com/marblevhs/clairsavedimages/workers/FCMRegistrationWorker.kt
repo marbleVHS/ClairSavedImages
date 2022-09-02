@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.marblevhs.clairsavedimages.extensions.appComponent
-import com.marblevhs.clairsavedimages.imageRepo.Repo
+import com.marblevhs.clairsavedimages.monoRepo.Repo
 import javax.inject.Inject
 
 class FCMRegistrationWorker constructor(

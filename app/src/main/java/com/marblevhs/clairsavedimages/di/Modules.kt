@@ -17,8 +17,8 @@ import com.marblevhs.clairsavedimages.MessagingService
 import com.marblevhs.clairsavedimages.favouritesList.FavouritesListFragment
 import com.marblevhs.clairsavedimages.imageDetails.ImageDetailsFragment
 import com.marblevhs.clairsavedimages.imageList.ImageListFragment
-import com.marblevhs.clairsavedimages.imageRepo.Repo
-import com.marblevhs.clairsavedimages.imageRepo.RepoImpl
+import com.marblevhs.clairsavedimages.monoRepo.Repo
+import com.marblevhs.clairsavedimages.monoRepo.RepoImpl
 import com.marblevhs.clairsavedimages.network.HerokuService
 import com.marblevhs.clairsavedimages.network.ImageService
 import com.marblevhs.clairsavedimages.network.ProfileService
@@ -32,10 +32,12 @@ import dagger.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import okhttp3.Cache
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.create
+import java.io.File
 import javax.inject.Scope
 
 @Scope
@@ -84,8 +86,14 @@ object AppModule {
 
     @Provides
     @AppScope
-    fun provideOkHttpClient(): OkHttpClient {
-        return OkHttpClient()
+    fun provideOkHttpClient(context: Context): OkHttpClient {
+        return OkHttpClient.Builder()
+            .cache(
+                Cache(
+                    directory = File(context.cacheDir, "http_cache"),
+                    maxSize = 40L * 1024L * 1024L
+                )
+            ).build()
     }
 
     @Provides

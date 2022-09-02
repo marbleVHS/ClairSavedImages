@@ -43,30 +43,24 @@ class MainActivity : AppCompatActivity() {
     private var vkLoginActivityResultLauncher: ActivityResultLauncher<Collection<VKScope>>? = null
     lateinit var navController: NavController
     private val viewModel: MainViewModel by viewModels { viewModelFactory }
+    private val windowInsetsController by lazy {
+        WindowCompat.getInsetsController(window, window.decorView)
+    }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         this.appComponent.inject(this)
         if (savedInstanceState == null) {
-            viewModel.getDefaultNightMode()
-            viewModel.getIsLogged()
             requestNotificationPermission()
             startFetchingWorker()
         }
+        setupEdgeToEdgeBehavior()
         vkLoginActivityResultLauncher =
             VK.login(this, LoginActivityResultCallback(viewModel, applicationContext))
         DynamicColors.applyToActivityIfAvailable(this)
         setContentView(R.layout.main_activity)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            window.attributes.layoutInDisplayCutoutMode =
-                WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
-        }
-        WindowCompat.setDecorFitsSystemWindows(window, false)
-
-        val navHostFragment =
-            supportFragmentManager.findFragmentById(R.id.NavHostFragment) as NavHostFragment
-        navController = navHostFragment.navController
+        initializeNavigation()
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.CREATED) {
                 launch {
@@ -75,13 +69,29 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
                 launch {
-                    viewModel.defaultNightMode.collectLatest {
+                    viewModel.defaultNightModeFlow.collectLatest {
                         updateDefaultNightMode(it)
                     }
                 }
             }
         }
 
+    }
+
+    private fun initializeNavigation() {
+        val navHostFragment =
+            supportFragmentManager.findFragmentById(R.id.NavHostFragment) as NavHostFragment
+        navController = navHostFragment.navController
+    }
+
+    private fun setupEdgeToEdgeBehavior() {
+        windowInsetsController.systemBarsBehavior =
+            WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            window.attributes.layoutInDisplayCutoutMode =
+                WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+        }
+        WindowCompat.setDecorFitsSystemWindows(window, false)
     }
 
     private fun requestNotificationPermission() {
@@ -140,7 +150,7 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    fun getAccessToken() {
+    fun startVkLoginActivity() {
         vkLoginActivityResultLauncher?.launch(
             arrayListOf(
                 VKScope.WALL,
@@ -160,16 +170,11 @@ class MainActivity : AppCompatActivity() {
 
 
     fun hideSystemBars() {
-        val windowInsetsController =
-            WindowCompat.getInsetsController(window, window.decorView)
-        windowInsetsController.systemBarsBehavior =
-            WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         windowInsetsController.hide(WindowInsetsCompat.Type.systemBars())
     }
 
     fun showSystemBars() {
-        val windowInsetsController =
-            WindowCompat.getInsetsController(window, window.decorView)
+
         windowInsetsController.show(WindowInsetsCompat.Type.systemBars())
     }
 

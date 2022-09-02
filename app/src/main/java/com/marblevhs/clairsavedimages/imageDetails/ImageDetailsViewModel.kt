@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.marblevhs.clairsavedimages.data.LocalImage
-import com.marblevhs.clairsavedimages.imageRepo.Repo
+import com.marblevhs.clairsavedimages.monoRepo.Repo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope

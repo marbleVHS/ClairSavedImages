@@ -12,7 +12,7 @@ import com.marblevhs.clairsavedimages.BuildConfig
 import com.marblevhs.clairsavedimages.MainActivity
 import com.marblevhs.clairsavedimages.R
 import com.marblevhs.clairsavedimages.extensions.appComponent
-import com.marblevhs.clairsavedimages.imageRepo.Repo
+import com.marblevhs.clairsavedimages.monoRepo.Repo
 import javax.inject.Inject
 
 class FetchingWorker constructor(appContext: Context, params: WorkerParameters) : CoroutineWorker(
@@ -24,18 +24,6 @@ class FetchingWorker constructor(appContext: Context, params: WorkerParameters) 
     lateinit var repo: Repo
 
     override suspend fun doWork(): Result {
-
-        if (BuildConfig.DEBUG) {
-            val debugNotif = NotificationCompat.Builder(applicationContext, "FetchingWorkerID")
-                .setSmallIcon(R.drawable.ic_baseline_favorite_36)
-                .setContentTitle("Debug")
-                .setContentText("FetchingWorker сработал")
-                .setAutoCancel(true)
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT).build()
-            with(NotificationManagerCompat.from(applicationContext)) {
-                notify(2002, debugNotif)
-            }
-        }
 
 
         try {
@@ -62,7 +50,19 @@ class FetchingWorker constructor(appContext: Context, params: WorkerParameters) 
                 with(NotificationManagerCompat.from(applicationContext)) {
                     notify(R.string.new_image_notification_id, notif)
                 }
+            } else if (BuildConfig.DEBUG) {
+                val debugNotif =
+                    NotificationCompat.Builder(applicationContext, "FetchingWorkerID")
+                        .setSmallIcon(R.drawable.ic_baseline_favorite_36)
+                        .setContentTitle("Debug")
+                        .setContentText("FetchingWorker сработал")
+                        .setAutoCancel(true)
+                        .setPriority(NotificationCompat.PRIORITY_DEFAULT).build()
+                with(NotificationManagerCompat.from(applicationContext)) {
+                    notify(2002, debugNotif)
+                }
             }
+
         } catch (e: Exception) {
             return Result.retry()
         }

@@ -4,7 +4,7 @@ import android.annotation.SuppressLint
 import androidx.work.*
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.marblevhs.clairsavedimages.extensions.appComponent
-import com.marblevhs.clairsavedimages.imageRepo.Repo
+import com.marblevhs.clairsavedimages.monoRepo.Repo
 import com.marblevhs.clairsavedimages.workers.FCMRegistrationWorker
 import javax.inject.Inject
 
