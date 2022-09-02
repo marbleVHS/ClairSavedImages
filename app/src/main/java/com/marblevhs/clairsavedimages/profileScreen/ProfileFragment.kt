@@ -56,8 +56,8 @@ class ProfileFragment : Fragment(R.layout.profile_fragment) {
                             is ProfileUiState.Success ->
                                 updateUi(it.userProfile)
                             is ProfileUiState.InitLoadingState -> {
-                                binding.ivError.visibility = View.INVISIBLE
-                                binding.progressBar.visibility = View.VISIBLE
+                                binding.ivProfileError.visibility = View.INVISIBLE
+                                binding.profileLoader.visibility = View.VISIBLE
                                 binding.tvProfileName.visibility = View.INVISIBLE
                                 binding.ivProfileImage.visibility = View.INVISIBLE
                                 binding.buttonLogOut.visibility = View.INVISIBLE
@@ -102,8 +102,8 @@ class ProfileFragment : Fragment(R.layout.profile_fragment) {
         binding.tvProfileName.text = fullName
         binding.ThemeChooser.visibility = View.VISIBLE
         binding.tvTheme.visibility = View.VISIBLE
-        binding.progressBar.visibility = View.INVISIBLE
-        binding.ivError.visibility = View.INVISIBLE
+        binding.profileLoader.visibility = View.INVISIBLE
+        binding.ivProfileError.visibility = View.INVISIBLE
         binding.tvProfileName.visibility = View.VISIBLE
         binding.ivProfileImage.visibility = View.VISIBLE
         binding.buttonLogOut.visibility = View.VISIBLE
@@ -114,10 +114,10 @@ class ProfileFragment : Fragment(R.layout.profile_fragment) {
         if (error != null) {
             Log.e("RESP", error)
         }
-        binding.ivError.visibility = View.VISIBLE
+        binding.ivProfileError.visibility = View.VISIBLE
         binding.ThemeChooser.visibility = View.VISIBLE
         binding.tvTheme.visibility = View.VISIBLE
-        binding.progressBar.visibility = View.INVISIBLE
+        binding.profileLoader.visibility = View.INVISIBLE
         binding.tvProfileName.visibility = View.INVISIBLE
         binding.ivProfileImage.visibility = View.INVISIBLE
         binding.buttonLogOut.visibility = View.INVISIBLE

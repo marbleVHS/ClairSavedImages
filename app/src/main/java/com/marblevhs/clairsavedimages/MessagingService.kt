@@ -16,8 +16,8 @@ class MessagingService : FirebaseMessagingService() {
 
 
     override fun onCreate() {
-        super.onCreate()
         this.appComponent.inject(this)
+        super.onCreate()
     }
 
     @SuppressLint("RestrictedApi")
