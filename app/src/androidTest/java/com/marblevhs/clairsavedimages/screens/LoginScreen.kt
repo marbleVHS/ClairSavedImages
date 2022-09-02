@@ -1,6 +1,7 @@
-package com.marblevhs.clairsavedimages
+package com.marblevhs.clairsavedimages.screens
 
 import com.kaspersky.kaspresso.screens.KScreen
+import com.marblevhs.clairsavedimages.R
 import com.marblevhs.clairsavedimages.loginScreen.LoginFragment
 import io.github.kakaocup.kakao.text.KButton
 

@@ -23,7 +23,7 @@
     </com.google.android.material.appbar.AppBarLayout>
 
     <ProgressBar
-        android:id="@+id/progressBar"
+        android:id="@+id/profileLoader"
         style="?android:attr/progressBarStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -85,7 +85,7 @@
                     tools:text="@tools:sample/full_names" />
 
                 <ImageView
-                    android:id="@+id/ivError"
+                    android:id="@+id/ivProfileError"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:src="@drawable/ic_baseline_error_120"
