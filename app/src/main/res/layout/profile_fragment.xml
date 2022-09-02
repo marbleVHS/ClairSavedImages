@@ -141,6 +141,13 @@
                     android:textAlignment="textStart" />
             </RadioGroup>
 
+            <Button
+                android:id="@+id/testButton"
+                style="@style/Widget.Material3.ExtendedFloatingActionButton.Tertiary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Test" />
+
 
         </LinearLayout>
     </ScrollView>

@@ -1,20 +1,17 @@
 package com.marblevhs.clairsavedimages.data
 
+import com.google.gson.annotations.SerializedName
 
-import com.squareup.moshi.Json
-import com.squareup.moshi.JsonClass
 
-@JsonClass(generateAdapter = true)
 data class UnhandledLikeResponse(
-    @Json(name = "response")
+    @SerializedName("response")
     val likeResponse: LikeResponse
 )
 
-@JsonClass(generateAdapter = true)
 data class LikeResponse(
-    @Json(name = "liked")
+    @SerializedName("liked")
     val liked: Int,
-    @Json(name = "copied")
+    @SerializedName("copied")
     val copied: Int
 )
 

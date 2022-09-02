@@ -13,7 +13,6 @@ import androidx.paging.PagingData
 import com.marblevhs.clairsavedimages.data.Album
 import com.marblevhs.clairsavedimages.data.LocalImage
 import com.marblevhs.clairsavedimages.data.UserProfile
-import com.marblevhs.clairsavedimages.network.HerokuService
 import com.marblevhs.clairsavedimages.network.ImageApiPagingSource
 import com.marblevhs.clairsavedimages.network.ImageService
 import com.marblevhs.clairsavedimages.network.ProfileService
@@ -23,6 +22,7 @@ import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
 interface Repo {
+
     suspend fun getImagesPaging(album: Album, rev: Int): Flow<PagingData<LocalImage>>
     suspend fun getIsLiked(itemId: String, ownerId: String): Boolean
     suspend fun getIsFav(itemId: String, ownerId: String): Boolean
@@ -39,8 +39,7 @@ interface Repo {
     suspend fun setDefaultNightMode(defaultNightMode: Int)
     suspend fun isThereNewImages(): Boolean
     suspend fun updateLastImage()
-    suspend fun registerUserToServer()
-    suspend fun sendFCMRegistrationToServer(token: String)
+
 }
 
 
@@ -50,7 +49,6 @@ val DEFAULT_NIGHT_MODE_KEY = intPreferencesKey("DEFAULT_NIGHT_MODE")
 class RepoImpl @Inject constructor(
     private val imageService: ImageService,
     private val profileService: ProfileService,
-    private val herokuService: HerokuService,
     private val db: DatabaseStorage,
     private val dataStore: DataStore<Preferences>,
     private val encryptedPrefs: SharedPreferences
@@ -80,8 +78,8 @@ class RepoImpl @Inject constructor(
     override suspend fun updateLastImage() {
         val accessToken: String = encryptedPrefs.getString("ACCESS_TOKEN_KEY", null) ?: "0"
         val currentImageId = imageService.requestImages(
-            ownerId = Album.DEBUG.ownerId,
-            albumId = Album.DEBUG.albumId,
+            ownerId = Album.CLAIR.ownerId,
+            albumId = Album.CLAIR.albumId,
             count = 1,
             offset = 0,
             accessToken = accessToken
@@ -89,23 +87,6 @@ class RepoImpl @Inject constructor(
         dataStore.edit { settings ->
             settings[LAST_IMAGE_ID_KEY] = currentImageId
         }
-    }
-
-    override suspend fun registerUserToServer() {
-        val profile = getProfile()
-        val accessToken = encryptedPrefs.getString("ACCESS_TOKEN_KEY", null) ?: "0"
-        herokuService.registerUser(
-            id = profile.id,
-            firstName = profile.firstName,
-            lastName = profile.lastName,
-            profilePicUrl = profile.profilePicUrl,
-            token = accessToken
-        )
-    }
-
-    override suspend fun sendFCMRegistrationToServer(token: String) {
-        val profile = getProfile()
-        herokuService.registerFCMToken(profile.id, token)
     }
 
     override suspend fun getIsLogged(): Boolean {
@@ -130,8 +111,8 @@ class RepoImpl @Inject constructor(
             return false
         }
         val currentImageId = imageService.requestImages(
-            ownerId = Album.DEBUG.ownerId,
-            albumId = Album.DEBUG.albumId,
+            ownerId = Album.CLAIR.ownerId,
+            albumId = Album.CLAIR.albumId,
             count = 1,
             offset = 0,
             accessToken = accessToken

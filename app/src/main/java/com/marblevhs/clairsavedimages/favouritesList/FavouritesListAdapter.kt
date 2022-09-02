@@ -15,9 +15,7 @@ import coil.load
 import com.marblevhs.clairsavedimages.R
 import com.marblevhs.clairsavedimages.data.LocalImage
 
-class FavouritesListAdapter(
-    private val onClick: (LocalImage) -> Unit
-) :
+class FavouritesListAdapter(private val onClick: (LocalImage) -> Unit) :
     ListAdapter<LocalImage, FavouritesListAdapter.ViewHolder>(
         ImageDiffCallback
     ) {

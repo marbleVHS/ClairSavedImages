@@ -69,52 +69,49 @@ class ImageListFragment : Fragment(R.layout.image_list_fragment) {
             StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL)
         initListeners()
         assetColorSchemeToSwipeRefreshLayout()
-
         viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                launch { collectUiState() }
-                launch { collectImagesList() }
-                launch { collectLoadState() }
-            }
-        }
-    }
-
-    private suspend fun collectUiState() {
-        viewModel.listUiState.collect {
-            when (it) {
-                is ImageListUiState.Success -> {
-                    updateUi(it.rev, it.album)
+            launch {
+                viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                    viewModel.listUiState.collect {
+                        when (it) {
+                            is ImageListUiState.Success -> {
+                                updateUi(it.rev, it.album)
+                            }
+                            is ImageListUiState.Error -> showError(it.exception.message)
+                            else -> {}
+                        }
+                    }
                 }
-                is ImageListUiState.Error -> showError(it.exception)
-                else -> {}
             }
-        }
-    }
-
-    private suspend fun collectImagesList() {
-        viewModel.images.collectLatest {
-            adapter.submitData(it)
-        }
-    }
-
-    private suspend fun collectLoadState() {
-        adapter.loadStateFlow.collectLatest { loadStates ->
-            if (loadStates.refresh == LoadState.Loading) {
-                if (!viewModel.firstImagesInit) {
-                    binding.swipeRefreshLayout.isRefreshing = true
-                    binding.listLoader.visibility = View.GONE
-                } else {
-                    binding.listLoader.visibility = View.VISIBLE
-                    viewModel.firstImagesInit = false
+            launch {
+                viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                    viewModel.images.collectLatest {
+                        adapter.submitData(it)
+                    }
                 }
-            } else {
-                binding.swipeRefreshLayout.isRefreshing = false
-                binding.listLoader.visibility = View.GONE
-                if (loadStates.refresh is LoadState.Error) {
-                    showError((loadStates.refresh as LoadState.Error).error)
+            }
+            launch {
+                adapter.loadStateFlow.collectLatest { loadStates ->
+                    if (loadStates.refresh == LoadState.Loading) {
+                        if (!viewModel.firstImagesInit) {
+                            binding.swipeRefreshLayout.isRefreshing = true
+                            binding.listLoader.visibility = View.GONE
+                        } else {
+                            binding.listLoader.visibility = View.VISIBLE
+                            viewModel.firstImagesInit = false
+                        }
+                    } else {
+                        binding.swipeRefreshLayout.isRefreshing = false
+                        binding.listLoader.visibility = View.GONE
+                        if (loadStates.refresh is LoadState.Error) {
+                            showError((loadStates.refresh as LoadState.Error).error.message)
+                        }
+                    }
+
                 }
             }
         }
+
     }
 
     private fun handleSystemInsets(view: View) {
@@ -154,16 +151,12 @@ class ImageListFragment : Fragment(R.layout.image_list_fragment) {
             .navigate(NavBarFragmentDirections.actionNavBarFragmentToImageDetailsFragment(image))
     }
 
-    private fun showError(exception: Throwable) {
+    private fun showError(errorMessage: String?) {
         binding.swipeRefreshLayout.isRefreshing = false
         binding.listLoader.visibility = View.GONE
-        Snackbar.make(
-            binding.coordinatorLayout as View,
-            "Images aren't available",
-            Snackbar.LENGTH_SHORT
-        )
+        Snackbar.make(binding.coordinatorLayout as View, "Network error", Snackbar.LENGTH_SHORT)
             .show()
-        Log.e("RESP", exception.localizedMessage ?: "0")
+        Log.e("RESP", errorMessage ?: "0")
     }
 
 

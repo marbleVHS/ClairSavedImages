@@ -4,39 +4,36 @@ package com.marblevhs.clairsavedimages.data
 import android.os.Parcelable
 import androidx.room.ColumnInfo
 import androidx.room.Entity
-import com.squareup.moshi.Json
-import com.squareup.moshi.JsonClass
+import com.google.gson.annotations.SerializedName
 import kotlinx.parcelize.Parcelize
 
-@JsonClass(generateAdapter = true)
 data class UnhandledImageResponse(
-    @Json(name = "response")
+    @SerializedName("response")
     val imageResponse: ImageResponse
 )
 
-@JsonClass(generateAdapter = true)
 data class ImageResponse(
-    @Json(name = "items")
+    @SerializedName("items")
     val images: List<JsonImage>
 )
 
-@JsonClass(generateAdapter = true)
+
 data class JsonImage(
-    @Json(name = "id")
+    @SerializedName("id")
     val id: String,
-    @Json(name = "sizes")
+    @SerializedName("sizes")
     val sizes: List<Size>
 )
 
-@JsonClass(generateAdapter = true)
+
 data class Size(
-    @Json(name = "type")
+    @SerializedName("type")
     val type: String,
-    @Json(name = "width")
+    @SerializedName("width")
     val width: Int,
-    @Json(name = "height")
+    @SerializedName("height")
     val height: Int,
-    @Json(name = "url")
+    @SerializedName("url")
     val imageUrl: String
 )
 

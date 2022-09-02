@@ -31,7 +31,7 @@ class ImageListViewModel(private val repo: Repo) : ViewModel() {
 
     var firstImagesInit = true
 
-    private var albumState: Album = Album.DEBUG
+    private var albumState: Album = Album.CLAIR
 
     private val query = MutableStateFlow(Pair(albumState, 1))
 
@@ -43,17 +43,7 @@ class ImageListViewModel(private val repo: Repo) : ViewModel() {
                 .cachedIn(viewModelScope)
         }
         .stateIn(viewModelScope, SharingStarted.Eagerly, PagingData.empty())
-        .also {
-            viewModelScope.launch {
-                try {
-                    repo.updateLastImage()
-                } catch (e: Exception) {
-                    _listUiState.emit(
-                        ImageListUiState.Error(e)
-                    )
-                }
-            }
-        }
+        .also { viewModelScope.launch { repo.updateLastImage() } }
 
     private suspend fun setQuery(queryPair: Pair<Album, Int>) {
         query.emit(queryPair)
@@ -72,10 +62,10 @@ class ImageListViewModel(private val repo: Repo) : ViewModel() {
 
 
     fun switchAlbumState(rev: Int) {
-        albumState = if (albumState == Album.DEBUG) {
+        albumState = if (albumState == Album.CLAIR) {
             Album.PUBLIC
         } else {
-            Album.DEBUG
+            Album.CLAIR
         }
         loadImages(rev = rev)
     }

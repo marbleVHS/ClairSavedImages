@@ -1,4 +1,4 @@
-package com.marblevhs.clairsavedimages.workers
+package com.marblevhs.clairsavedimages.fetchingWorker
 
 import android.app.PendingIntent
 import android.content.Context
@@ -8,7 +8,6 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.TaskStackBuilder
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import com.marblevhs.clairsavedimages.BuildConfig
 import com.marblevhs.clairsavedimages.MainActivity
 import com.marblevhs.clairsavedimages.R
 import com.marblevhs.clairsavedimages.extensions.appComponent
@@ -25,18 +24,15 @@ class FetchingWorker constructor(appContext: Context, params: WorkerParameters) 
 
     override suspend fun doWork(): Result {
 
-        if (BuildConfig.DEBUG) {
-            val debugNotif = NotificationCompat.Builder(applicationContext, "FetchingWorkerID")
-                .setSmallIcon(R.drawable.ic_baseline_favorite_36)
-                .setContentTitle("Debug")
-                .setContentText("FetchingWorker сработал")
-                .setAutoCancel(true)
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT).build()
-            with(NotificationManagerCompat.from(applicationContext)) {
-                notify(2002, debugNotif)
-            }
+        val debugNotif = NotificationCompat.Builder(applicationContext, "FetchingWorkerID")
+            .setSmallIcon(R.drawable.ic_baseline_favorite_36)
+            .setContentTitle("Debug")
+            .setContentText("FetchingWorker сработал")
+            .setAutoCancel(true)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT).build()
+        with(NotificationManagerCompat.from(applicationContext)) {
+            notify(2002, debugNotif)
         }
-
 
         try {
             this.applicationContext.appComponent.inject(this)
