@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.marblevhs.clairsavedimages.data.LocalImage
-import com.marblevhs.clairsavedimages.monoRepo.Repo
+import com.marblevhs.clairsavedimages.repositories.ImagesRepo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -14,12 +14,13 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class ImageDetailsViewModel(private val repo: Repo) : ViewModel() {
+class ImageDetailsViewModel(private val imagesRepo: ImagesRepo) : ViewModel() {
 
     @Suppress("UNCHECKED_CAST")
-    class Factory @Inject constructor(private val repo: Repo) : ViewModelProvider.Factory {
+    class Factory @Inject constructor(private val imagesRepo: ImagesRepo) :
+        ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return ImageDetailsViewModel(repo = repo) as T
+            return ImageDetailsViewModel(imagesRepo = imagesRepo) as T
         }
     }
 
@@ -39,9 +40,9 @@ class ImageDetailsViewModel(private val repo: Repo) : ViewModel() {
             try {
                 val imageBelongingToLists = coroutineScope {
                     val isLiked =
-                        async { repo.getIsLiked(itemId = image.id, ownerId = image.ownerId) }
+                        async { imagesRepo.getIsLiked(itemId = image.id, ownerId = image.ownerId) }
                     val isFav =
-                        async { repo.getIsFav(itemId = image.id, ownerId = image.ownerId) }
+                        async { imagesRepo.getIsFav(itemId = image.id, ownerId = image.ownerId) }
                     return@coroutineScope mapOf(
                         "isLiked" to isLiked.await(),
                         "isFav" to isFav.await()
@@ -66,11 +67,14 @@ class ImageDetailsViewModel(private val repo: Repo) : ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 var isLiked =
-                    repo.getIsLiked(itemId = imageInstance.id, ownerId = imageInstance.ownerId)
-                val isFav = repo.getIsFav(imageInstance.id, imageInstance.ownerId)
+                    imagesRepo.getIsLiked(
+                        itemId = imageInstance.id,
+                        ownerId = imageInstance.ownerId
+                    )
+                val isFav = imagesRepo.getIsFav(imageInstance.id, imageInstance.ownerId)
                 if (isLiked) {
                     launch {
-                        repo.deleteLike(
+                        imagesRepo.deleteLike(
                             itemId = imageInstance.id,
                             ownerId = imageInstance.ownerId
                         )
@@ -84,7 +88,7 @@ class ImageDetailsViewModel(private val repo: Repo) : ViewModel() {
                         )
                 } else {
                     launch {
-                        repo.addLike(
+                        imagesRepo.addLike(
                             itemId = imageInstance.id,
                             ownerId = imageInstance.ownerId
                         )
@@ -107,10 +111,13 @@ class ImageDetailsViewModel(private val repo: Repo) : ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val isLiked =
-                    repo.getIsLiked(itemId = imageInstance.id, ownerId = imageInstance.ownerId)
-                var isFav = repo.getIsFav(imageInstance.id, imageInstance.ownerId)
+                    imagesRepo.getIsLiked(
+                        itemId = imageInstance.id,
+                        ownerId = imageInstance.ownerId
+                    )
+                var isFav = imagesRepo.getIsFav(imageInstance.id, imageInstance.ownerId)
                 if (isFav) {
-                    launch { repo.deleteFav(imageInstance) }
+                    launch { imagesRepo.deleteFav(imageInstance) }
                     isFav = !isFav
                     _detailsUiState.value =
                         ImageDetailsUiState.Success(
@@ -119,7 +126,7 @@ class ImageDetailsViewModel(private val repo: Repo) : ViewModel() {
                             image = imageInstance
                         )
                 } else {
-                    launch { repo.addFav(imageInstance) }
+                    launch { imagesRepo.addFav(imageInstance) }
                     isFav = !isFav
                     _detailsUiState.value =
                         ImageDetailsUiState.Success(
@@ -137,7 +144,6 @@ class ImageDetailsViewModel(private val repo: Repo) : ViewModel() {
     private val detailsDefaultState = ImageDetailsUiState.LoadingState
     private val _detailsUiState = MutableStateFlow<ImageDetailsUiState>(detailsDefaultState)
     val detailsUiState: StateFlow<ImageDetailsUiState> = _detailsUiState.asStateFlow()
-
 
 
 }

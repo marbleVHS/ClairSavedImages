@@ -1,4 +1,4 @@
-package com.marblevhs.clairsavedimages.extensions
+package com.marblevhs.clairsavedimages.utils
 
 import android.content.res.Resources
 import android.util.TypedValue

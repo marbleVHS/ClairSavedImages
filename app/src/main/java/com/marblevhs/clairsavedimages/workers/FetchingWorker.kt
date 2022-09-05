@@ -11,8 +11,8 @@ import androidx.work.WorkerParameters
 import com.marblevhs.clairsavedimages.BuildConfig
 import com.marblevhs.clairsavedimages.MainActivity
 import com.marblevhs.clairsavedimages.R
-import com.marblevhs.clairsavedimages.extensions.appComponent
-import com.marblevhs.clairsavedimages.monoRepo.Repo
+import com.marblevhs.clairsavedimages.repositories.ImagesRepo
+import com.marblevhs.clairsavedimages.utils.appComponent
 import javax.inject.Inject
 
 class FetchingWorker constructor(appContext: Context, params: WorkerParameters) : CoroutineWorker(
@@ -21,14 +21,14 @@ class FetchingWorker constructor(appContext: Context, params: WorkerParameters) 
 ) {
 
     @Inject
-    lateinit var repo: Repo
+    lateinit var imagesRepo: ImagesRepo
 
     override suspend fun doWork(): Result {
 
 
         try {
             this.applicationContext.appComponent.inject(this)
-            val newImagesAppeared: Boolean = repo.isThereNewImages()
+            val newImagesAppeared: Boolean = imagesRepo.isThereNewImages()
             if (newImagesAppeared) {
                 val resultIntent = Intent(applicationContext, MainActivity::class.java)
                 val resultPendingIntent: PendingIntent? =

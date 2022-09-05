@@ -4,19 +4,20 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.marblevhs.clairsavedimages.data.LocalImage
-import com.marblevhs.clairsavedimages.monoRepo.Repo
+import com.marblevhs.clairsavedimages.repositories.ImagesRepo
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
-class FavouritesListViewModel(private val repo: Repo) : ViewModel() {
+class FavouritesListViewModel(private val imagesRepo: ImagesRepo) : ViewModel() {
 
     @Suppress("UNCHECKED_CAST")
-    class Factory @Inject constructor(private val repo: Repo) : ViewModelProvider.Factory {
+    class Factory @Inject constructor(private val imagesRepo: ImagesRepo) :
+        ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return FavouritesListViewModel(repo = repo) as T
+            return FavouritesListViewModel(imagesRepo = imagesRepo) as T
         }
     }
 
@@ -34,7 +35,7 @@ class FavouritesListViewModel(private val repo: Repo) : ViewModel() {
             viewModelScope.launch(Dispatchers.IO) {
                 try {
                     val favs = coroutineScope {
-                        val favsAsync = async { repo.getFavs(rev) }
+                        val favsAsync = async { imagesRepo.getFavs(rev) }
                         delay(250)
                         return@coroutineScope favsAsync.await()
                     }
@@ -52,7 +53,7 @@ class FavouritesListViewModel(private val repo: Repo) : ViewModel() {
                 }
                 try {
                     val favs = coroutineScope {
-                        val favsAsync = async { repo.getFavs(rev) }
+                        val favsAsync = async { imagesRepo.getFavs(rev) }
                         delay(250)
                         return@coroutineScope favsAsync.await()
                     }
@@ -68,12 +69,11 @@ class FavouritesListViewModel(private val repo: Repo) : ViewModel() {
 
     fun loadFavs(rev: Int) {
         viewModelScope.launch(Dispatchers.IO) {
-            val favs = repo.getFavs(rev)
+            val favs = imagesRepo.getFavs(rev)
             delay(200)
             _favouritesUiState.value = FavouritesListUiState.Success(images = favs, rev = rev)
         }
     }
-
 
 
 }

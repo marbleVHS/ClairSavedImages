@@ -20,7 +20,7 @@ import com.marblevhs.clairsavedimages.MainViewModel
 import com.marblevhs.clairsavedimages.R
 import com.marblevhs.clairsavedimages.data.UserProfile
 import com.marblevhs.clairsavedimages.databinding.ProfileFragmentBinding
-import com.marblevhs.clairsavedimages.extensions.appComponent
+import com.marblevhs.clairsavedimages.utils.appComponent
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
