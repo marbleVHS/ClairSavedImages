@@ -1,8 +1,6 @@
 package com.marblevhs.clairsavedimages.di
 
-
 import android.content.Context
-import android.content.SharedPreferences
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
@@ -10,25 +8,13 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.room.Room
-import androidx.security.crypto.EncryptedSharedPreferences
-import androidx.security.crypto.MasterKeys
-import com.marblevhs.clairsavedimages.MainActivity
-import com.marblevhs.clairsavedimages.MessagingService
-import com.marblevhs.clairsavedimages.favouritesList.FavouritesListFragment
-import com.marblevhs.clairsavedimages.imageDetails.ImageDetailsFragment
-import com.marblevhs.clairsavedimages.imageList.ImageListFragment
-import com.marblevhs.clairsavedimages.monoRepo.Repo
-import com.marblevhs.clairsavedimages.monoRepo.RepoImpl
 import com.marblevhs.clairsavedimages.network.HerokuService
 import com.marblevhs.clairsavedimages.network.ImageService
 import com.marblevhs.clairsavedimages.network.ProfileService
-import com.marblevhs.clairsavedimages.profileScreen.ProfileFragment
-import com.marblevhs.clairsavedimages.room.DatabaseStorage
-import com.marblevhs.clairsavedimages.workers.FCMRegistrationWorker
-import com.marblevhs.clairsavedimages.workers.FetchingWorker
-import com.marblevhs.clairsavedimages.workers.UserRegistrationWorker
+import com.marblevhs.clairsavedimages.persistence.room.DatabaseStorage
 import com.squareup.moshi.Moshi
-import dagger.*
+import dagger.Module
+import dagger.Provides
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -38,31 +24,6 @@ import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.create
 import java.io.File
-import javax.inject.Scope
-
-@Scope
-annotation class AppScope
-
-@AppScope
-@Component(modules = [AppModule::class])
-interface AppComponent {
-
-    @Component.Factory
-    interface Factory {
-        fun create(@BindsInstance context: Context): AppComponent
-    }
-
-
-    fun inject(imageListFragment: ImageListFragment)
-    fun inject(favouritesListFragment: FavouritesListFragment)
-    fun inject(imageDetailsFragment: ImageDetailsFragment)
-    fun inject(mainActivity: MainActivity)
-    fun inject(profileFragment: ProfileFragment)
-    fun inject(fetchingWorker: FetchingWorker)
-    fun inject(userRegistrationWorker: UserRegistrationWorker)
-    fun inject(messagingService: MessagingService)
-    fun inject(fcmRegistrationWorker: FCMRegistrationWorker)
-}
 
 @Module(includes = [AppBindModule::class])
 object AppModule {
@@ -107,19 +68,6 @@ object AppModule {
         return retrofit.create()
     }
 
-    @Provides
-    @AppScope
-    fun provideEncryptedSharedPreferences(context: Context): SharedPreferences {
-        val keyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
-        val sharedPreferences: SharedPreferences = EncryptedSharedPreferences.create(
-            "encryptedPrefs",
-            keyAlias,
-            context,
-            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-        )
-        return sharedPreferences
-    }
 
     @Provides
     @AppScope
@@ -145,6 +93,7 @@ object AppModule {
 
     @Provides
     @AppScope
+    @SimplePreferences
     fun providePreferencesDataStore(context: Context): DataStore<Preferences> {
         return PreferenceDataStoreFactory.create(
             corruptionHandler = ReplaceFileCorruptionHandler(
@@ -155,11 +104,17 @@ object AppModule {
         )
     }
 
-}
-
-@Module
-interface AppBindModule {
-    @Binds
+    @Provides
     @AppScope
-    fun bindRepo(repoImpl: RepoImpl): Repo
+    @EncryptedPreferences
+    fun provideEncryptedPreferencesDataStore(context: Context): DataStore<Preferences> {
+        return PreferenceDataStoreFactory.create(
+            corruptionHandler = ReplaceFileCorruptionHandler(
+                produceNewData = { emptyPreferences() }
+            ),
+            scope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
+            produceFile = { context.preferencesDataStoreFile("encryptedPrefs") }
+        )
+    }
+
 }

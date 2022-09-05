@@ -7,19 +7,20 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.marblevhs.clairsavedimages.data.Album
 import com.marblevhs.clairsavedimages.data.LocalImage
-import com.marblevhs.clairsavedimages.monoRepo.Repo
+import com.marblevhs.clairsavedimages.repositories.ImagesRepo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class ImageListViewModel(private val repo: Repo) : ViewModel() {
+class ImageListViewModel(private val imagesRepo: ImagesRepo) : ViewModel() {
 
     @Suppress("UNCHECKED_CAST")
-    class Factory @Inject constructor(private val repo: Repo) : ViewModelProvider.Factory {
+    class Factory @Inject constructor(private val imagesRepo: ImagesRepo) :
+        ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return ImageListViewModel(repo = repo) as T
+            return ImageListViewModel(imagesRepo = imagesRepo) as T
         }
     }
 
@@ -35,7 +36,7 @@ class ImageListViewModel(private val repo: Repo) : ViewModel() {
     val imagesFlow: StateFlow<PagingData<LocalImage>> =
         albumState.combine(rev) { album, rev -> Pair(album, rev) }
             .flatMapLatest { queryPair ->
-                repo.getImagesPaging(album = queryPair.first, rev = queryPair.second)
+                imagesRepo.getImagesPaging(album = queryPair.first, rev = queryPair.second)
                     .cachedIn(viewModelScope)
             }
             .stateIn(viewModelScope, SharingStarted.Eagerly, PagingData.empty())
@@ -65,7 +66,7 @@ class ImageListViewModel(private val repo: Repo) : ViewModel() {
 
     fun saveLatestSeenImage() {
         viewModelScope.launch(Dispatchers.IO) {
-            repo.updateLastImage()
+            imagesRepo.updateLastImage()
         }
     }
 

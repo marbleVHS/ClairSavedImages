@@ -3,8 +3,8 @@ package com.marblevhs.clairsavedimages.workers
 import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import com.marblevhs.clairsavedimages.extensions.appComponent
-import com.marblevhs.clairsavedimages.monoRepo.Repo
+import com.marblevhs.clairsavedimages.repositories.ProfileRepo
+import com.marblevhs.clairsavedimages.utils.appComponent
 import javax.inject.Inject
 
 class FCMRegistrationWorker constructor(
@@ -17,7 +17,7 @@ class FCMRegistrationWorker constructor(
     ) {
 
     @Inject
-    lateinit var repo: Repo
+    lateinit var profileRepo: ProfileRepo
 
 
     override suspend fun doWork(): Result {
@@ -25,7 +25,7 @@ class FCMRegistrationWorker constructor(
             this.applicationContext.appComponent.inject(this)
             val token = inputData.getString("token")!!
 
-            repo.sendFCMRegistrationToServer(token)
+            profileRepo.sendFCMRegistrationToServer(token)
             Result.success()
         } catch (e: Exception) {
             Result.retry()

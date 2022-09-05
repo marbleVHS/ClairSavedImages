@@ -1,4 +1,4 @@
-package com.marblevhs.clairsavedimages.room
+package com.marblevhs.clairsavedimages.persistence.room
 
 import androidx.room.*
 import com.marblevhs.clairsavedimages.data.LocalImage

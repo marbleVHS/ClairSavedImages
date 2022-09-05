@@ -23,9 +23,9 @@ import androidx.navigation.NavOptions
 import androidx.navigation.fragment.NavHostFragment
 import androidx.work.*
 import com.google.android.material.color.DynamicColors
-import com.marblevhs.clairsavedimages.extensions.appComponent
 import com.marblevhs.clairsavedimages.loginScreen.LoginActivityResultCallback
 import com.marblevhs.clairsavedimages.loginScreen.LoginFragmentDirections
+import com.marblevhs.clairsavedimages.utils.appComponent
 import com.marblevhs.clairsavedimages.workers.FetchingWorker
 import com.vk.api.sdk.VK
 import com.vk.api.sdk.auth.VKScope
@@ -161,6 +161,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun clearAccessToken() {
+        VK.logout()
         viewModel.clearLoginData()
     }
 

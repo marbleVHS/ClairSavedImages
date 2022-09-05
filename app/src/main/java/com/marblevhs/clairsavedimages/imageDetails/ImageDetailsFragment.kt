@@ -18,7 +18,7 @@ import com.marblevhs.clairsavedimages.MainActivity
 import com.marblevhs.clairsavedimages.R
 import com.marblevhs.clairsavedimages.data.LocalImage
 import com.marblevhs.clairsavedimages.databinding.ImageDetailsFragmentBinding
-import com.marblevhs.clairsavedimages.extensions.appComponent
+import com.marblevhs.clairsavedimages.utils.appComponent
 import com.ortiz.touchview.OnTouchImageViewListener
 import kotlinx.coroutines.launch
 import javax.inject.Inject
