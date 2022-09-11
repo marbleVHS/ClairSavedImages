@@ -29,6 +29,8 @@ jobs:
         TEST_TOKEN_KEY: ${{ secrets.TEST_TOKEN_KEY }}
       run: ./gradlew build
     - name: run tests
+      env:
+        TEST_TOKEN_KEY: ${{ secrets.TEST_TOKEN_KEY }}
       uses: reactivecircus/android-emulator-runner@v2
       with:
          api-level: 29
