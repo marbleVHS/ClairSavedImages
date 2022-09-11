@@ -25,7 +25,7 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.create
 import java.io.File
 
-@Module(includes = [AppBindModule::class])
+@Module
 object AppModule {
 
     @Provides

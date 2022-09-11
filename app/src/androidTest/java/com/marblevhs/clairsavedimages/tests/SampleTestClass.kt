@@ -4,8 +4,10 @@ package com.marblevhs.clairsavedimages.tests
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import com.kaspersky.kaspresso.testcases.api.testcase.TestCase
 import com.marblevhs.clairsavedimages.MainActivity
+import com.marblevhs.clairsavedimages.screens.LoginScreen
 import com.marblevhs.clairsavedimages.screens.NavBarScreen
 import com.marblevhs.clairsavedimages.screens.ProfileScreen
+import com.marblevhs.clairsavedimages.screens.SignOutDialogScreen
 import org.junit.Rule
 import org.junit.Test
 
@@ -27,6 +29,16 @@ class SampleTestClass : TestCase() {
     }.after {
 
     }.run {
+
+        step("login") {
+            LoginScreen {
+                loginButton {
+                    isVisible()
+                    isClickable()
+                    click()
+                }
+            }
+        }
 
         step("open pictures screen") {
             NavBarScreen {
@@ -88,6 +100,24 @@ class SampleTestClass : TestCase() {
                     isClickable()
                     click()
                     device.screenshots.take("check the dialog")
+                }
+            }
+        }
+
+        step("confirm the log out") {
+            SignOutDialogScreen {
+                title {
+                    isVisible()
+                    containsText("Are you sure?")
+                }
+                CancelButton {
+                    isVisible()
+                    isClickable()
+                }
+                SignOutButton {
+                    isVisible()
+                    isClickable()
+                    click()
                 }
             }
         }

@@ -15,8 +15,7 @@ import com.vk.api.sdk.auth.VKAuthenticationResult
 class LoginActivityResultCallback(
     private val viewModel: MainViewModel,
     private val context: Context
-) :
-    ActivityResultCallback<VKAuthenticationResult> {
+) : ActivityResultCallback<VKAuthenticationResult> {
     override fun onActivityResult(result: VKAuthenticationResult?) {
         if (result is VKAuthenticationResult.Success) {
             viewModel.saveAccessToken(result.token.accessToken)
