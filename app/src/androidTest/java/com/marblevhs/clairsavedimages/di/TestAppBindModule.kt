@@ -1,13 +1,13 @@
 package com.marblevhs.clairsavedimages.di
 
 import com.marblevhs.clairsavedimages.loginScreen.VKLoginManager
-import com.marblevhs.clairsavedimages.loginScreen.VKLoginManagerImpl
+import com.marblevhs.clairsavedimages.mock.TestVKLoginManagerImpl
 import com.marblevhs.clairsavedimages.repositories.*
 import dagger.Binds
 import dagger.Module
 
 @Module
-interface AppBindModule {
+interface TestAppBindModule {
 
     @Binds
     @AppScope
@@ -23,6 +23,6 @@ interface AppBindModule {
 
     @Binds
     @AppScope
-    fun bindVkLoginManager(vkLoginManagerImpl: VKLoginManagerImpl): VKLoginManager
+    fun bindVkLoginManager(vkLoginManagerImpl: TestVKLoginManagerImpl): VKLoginManager
 
 }

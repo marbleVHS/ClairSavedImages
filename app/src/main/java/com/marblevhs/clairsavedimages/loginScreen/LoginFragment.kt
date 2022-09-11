@@ -1,30 +1,31 @@
 package com.marblevhs.clairsavedimages.loginScreen
 
+import android.content.Context
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.marblevhs.clairsavedimages.MainActivity
+import by.kirich1409.viewbindingdelegate.viewBinding
+import com.marblevhs.clairsavedimages.R
 import com.marblevhs.clairsavedimages.databinding.LoginFragmentBinding
+import com.marblevhs.clairsavedimages.utils.appComponent
+import javax.inject.Inject
 
-class LoginFragment : Fragment() {
+class LoginFragment : Fragment(R.layout.login_fragment) {
 
-    private var binding: LoginFragmentBinding? = null
+    @Inject
+    lateinit var vkLoginManager: VKLoginManager
 
+    private val binding by viewBinding(LoginFragmentBinding::bind)
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        binding = LoginFragmentBinding.inflate(layoutInflater)
-        return binding?.root
+    override fun onAttach(context: Context) {
+        context.appComponent.inject(this)
+        super.onAttach(context)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding?.loginButton?.setOnClickListener {
-            (activity as MainActivity).startVkLoginActivity()
+        binding.loginButton.setOnClickListener {
+            vkLoginManager.login()
         }
 
     }

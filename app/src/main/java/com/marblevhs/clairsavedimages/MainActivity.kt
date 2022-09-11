@@ -4,7 +4,6 @@ package com.marblevhs.clairsavedimages
 import android.os.Build
 import android.os.Bundle
 import android.view.WindowManager
-import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -25,6 +24,7 @@ import androidx.work.*
 import com.google.android.material.color.DynamicColors
 import com.marblevhs.clairsavedimages.loginScreen.LoginActivityResultCallback
 import com.marblevhs.clairsavedimages.loginScreen.LoginFragmentDirections
+import com.marblevhs.clairsavedimages.loginScreen.VKLoginManager
 import com.marblevhs.clairsavedimages.utils.appComponent
 import com.marblevhs.clairsavedimages.workers.FetchingWorker
 import com.vk.api.sdk.VK
@@ -40,7 +40,9 @@ class MainActivity : AppCompatActivity() {
     @Inject
     lateinit var viewModelFactory: MainViewModel.Factory
 
-    private var vkLoginActivityResultLauncher: ActivityResultLauncher<Collection<VKScope>>? = null
+    @Inject
+    lateinit var vkLoginManager: VKLoginManager
+
     lateinit var navController: NavController
     private val viewModel: MainViewModel by viewModels { viewModelFactory }
     private val windowInsetsController by lazy {
@@ -56,8 +58,15 @@ class MainActivity : AppCompatActivity() {
             startFetchingWorker()
         }
         setupEdgeToEdgeBehavior()
-        vkLoginActivityResultLauncher =
-            VK.login(this, LoginActivityResultCallback(viewModel, applicationContext))
+        vkLoginManager.registerActivityResultLauncher(
+            activity = this,
+            callback = LoginActivityResultCallback(viewModel, applicationContext),
+            vkScopeCollection = arrayListOf(
+                VKScope.WALL,
+                VKScope.PHOTOS,
+                VKScope.OFFLINE
+            )
+        )
         DynamicColors.applyToActivityIfAvailable(this)
         setContentView(R.layout.main_activity)
         initializeNavigation()
@@ -149,16 +158,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
-    fun startVkLoginActivity() {
-        vkLoginActivityResultLauncher?.launch(
-            arrayListOf(
-                VKScope.WALL,
-                VKScope.PHOTOS,
-                VKScope.OFFLINE
-            )
-        )
-    }
 
     fun clearAccessToken() {
         VK.logout()

@@ -8,15 +8,19 @@ import android.os.Build
 import com.marblevhs.clairsavedimages.di.AppComponent
 import com.marblevhs.clairsavedimages.di.DaggerAppComponent
 
-class MainApp : Application() {
+open class MainApp : Application() {
 
     lateinit var appComponent: AppComponent
 
 
     override fun onCreate() {
         super.onCreate()
-        appComponent = DaggerAppComponent.factory().create(this)
+        initializeDaggerComponent()
         createNotificationChannel()
+    }
+
+    protected open fun initializeDaggerComponent() {
+        appComponent = DaggerAppComponent.factory().create(this)
     }
 
 
