@@ -34,11 +34,7 @@ android {
         versionName "1.0"
 
         def TEST_TOKEN_KEY = System.getenv("TEST_TOKEN_KEY")
-        if (TEST_TOKEN_KEY == null) {
-            Properties properties = new Properties()
-            properties.load(project.rootProject.file('local.properties').newDataInputStream())
-            TEST_TOKEN_KEY = properties["TEST_TOKEN_KEY"]?:"NoTestTokenFound/defineMe"
-        }
+
 
         buildConfigField "String", "TEST_TOKEN_KEY", "\"${TEST_TOKEN_KEY}\""
 
