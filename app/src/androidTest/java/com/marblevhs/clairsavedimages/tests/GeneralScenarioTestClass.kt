@@ -2,16 +2,26 @@ package com.marblevhs.clairsavedimages.tests
 
 
 import android.Manifest
+import android.content.Context
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.rule.GrantPermissionRule
+import androidx.work.ListenableWorker
+import androidx.work.testing.TestListenableWorkerBuilder
 import com.kaspersky.kaspresso.testcases.api.testcase.TestCase
 import com.marblevhs.clairsavedimages.MainActivity
 import com.marblevhs.clairsavedimages.screens.*
+import com.marblevhs.clairsavedimages.workers.FetchingWorker
+import io.github.kakaocup.kakao.switch.SwitchableActions
+import kotlinx.coroutines.runBlocking
+import org.hamcrest.Matchers
+import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
 
 
 class GeneralScenarioTestClass : TestCase() {
+    private lateinit var context: Context
 
     @get:Rule
     val runtimePermissionRule: GrantPermissionRule = GrantPermissionRule.grant(
@@ -24,7 +34,7 @@ class GeneralScenarioTestClass : TestCase() {
 
     @Test
     fun sampleTest() = before {
-
+        context = ApplicationProvider.getApplicationContext()
     }.after {
 
     }.run {
@@ -63,7 +73,7 @@ class GeneralScenarioTestClass : TestCase() {
             }
         }
 
-        step("add new favourite") {
+        step("add new favourite and exit details screen") {
             ImageDetailsScreen {
                 favouritesButton {
                     isVisible()
@@ -94,7 +104,7 @@ class GeneralScenarioTestClass : TestCase() {
             }
         }
 
-        step("delete last favourite") {
+        step("delete last favourite and exit details screen") {
             ImageDetailsScreen {
                 favouritesButton {
                     isVisible()
@@ -137,6 +147,30 @@ class GeneralScenarioTestClass : TestCase() {
                 }
             }
         }
+
+        step("check Fetcher worker") {
+            ProfileScreen {
+                notificationToggle {
+                    isVisible()
+                    isClickable()
+                    swipeSwitchThumb(SwitchableActions.Direction.RIGHT)
+                }
+            }
+            val worker = TestListenableWorkerBuilder<FetchingWorker>(context).build()
+            runBlocking {
+                val result = worker.doWork()
+                Assert.assertThat(result, Matchers.`is`(ListenableWorker.Result.success()))
+            }
+            device.screenshots.take("check the notification")
+            ProfileScreen {
+                notificationToggle {
+                    isVisible()
+                    isClickable()
+                    swipeSwitchThumb(SwitchableActions.Direction.LEFT)
+                }
+            }
+        }
+
 
         step("open the log out dialog") {
             ProfileScreen {

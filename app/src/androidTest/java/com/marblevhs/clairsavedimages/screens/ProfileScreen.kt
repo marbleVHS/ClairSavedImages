@@ -5,6 +5,7 @@ import com.marblevhs.clairsavedimages.R
 import com.marblevhs.clairsavedimages.profileScreen.ProfileFragment
 import io.github.kakaocup.kakao.common.views.KView
 import io.github.kakaocup.kakao.image.KImageView
+import io.github.kakaocup.kakao.switch.KSwitch
 import io.github.kakaocup.kakao.text.KButton
 
 object ProfileScreen : KScreen<ProfileScreen>() {
@@ -17,6 +18,7 @@ object ProfileScreen : KScreen<ProfileScreen>() {
     val systemDefaultRbButton = KButton { withId(R.id.rbSystemDefault) }
     val logOutButton = KButton { withId(R.id.buttonLogOut) }
     val errorLogOutButton = KButton { withId(R.id.buttonErrorLogOut) }
+    val notificationToggle = KSwitch { withId(R.id.notificationSwitch) }
     val loader = KView { withId(R.id.profileLoader) }
     val errorImage = KImageView { withId(R.id.ivProfileError) }
 
