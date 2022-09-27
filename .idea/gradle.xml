@@ -14,6 +14,8 @@
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/core" />
             <option value="$PROJECT_DIR$/core/ui" />
+            <option value="$PROJECT_DIR$/loupe-extensions" />
+            <option value="$PROJECT_DIR$/loupe-library" />
           </set>
         </option>
       </GradleProjectSettings>

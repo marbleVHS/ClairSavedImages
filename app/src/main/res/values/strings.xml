@@ -8,13 +8,13 @@
     <string name="zoom_in_text">Zoom in</string>
     <string name="edit">edit</string>
     <string name="new_image_notification_id">1001</string>
+    <string name="debug_fetching_worker_notification_id">2002</string>
     <string name="top_menu_sort_text">Sort</string>
     <string name="top_menu_switch_source_text">Switch saved/public</string>
     <string name="top_menu_refresh_text">Refresh</string>
     <string name="top_menu_about_app_text">About app</string>
     <string name="api_base_url">https://api.vk.com/</string>
     <string name="top_bar_favourites_text">Favourite Clair\'s pictures</string>
-
 
 
 </resources>

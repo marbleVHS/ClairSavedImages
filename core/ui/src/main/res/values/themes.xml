@@ -32,8 +32,8 @@
         <item name="colorPrimaryInverse">@color/md_theme_light_primaryInverse</item>
     </style>
 
-    <style name="Base.Theme.ClairSavedImages" parent="Base.V23.Theme.ClairSavedImages"/>
+    <style name="Base.Theme.ClairSavedImages" parent="Base.V23.Theme.ClairSavedImages" />
 
-    <style name="Theme.ClairSavedImages" parent="Base.Theme.ClairSavedImages"/>
+    <style name="Theme.ClairSavedImages" parent="Base.Theme.ClairSavedImages" />
 
 </resources>

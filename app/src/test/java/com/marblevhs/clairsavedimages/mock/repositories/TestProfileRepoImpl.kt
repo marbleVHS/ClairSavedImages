@@ -7,6 +7,9 @@ import javax.inject.Inject
 
 class TestProfileRepoImpl @Inject constructor() : ProfileRepo {
 
+    override fun getProfileFlow(): Flow<UserProfile> {
+        TODO("Not yet implemented")
+    }
 
     override suspend fun getProfile(): UserProfile {
         TODO("Not yet implemented")

@@ -35,7 +35,12 @@ class FavouritesListFragment : Fragment(R.layout.favourites_list_fragment) {
     private val viewModel: FavouritesListViewModel by viewModels { viewModelFactory }
     private val binding by viewBinding(FavouritesListFragmentBinding::bind)
     private var revUi: Int = 1
-    private val adapter = FavouritesListAdapter { image -> adapterOnClick(image) }
+    private val adapter = FavouritesListAdapter { image, memoryCacheKey ->
+        adapterOnClick(
+            image,
+            memoryCacheKey
+        )
+    }
 
 
     override fun onAttach(context: Context) {
@@ -45,7 +50,6 @@ class FavouritesListFragment : Fragment(R.layout.favourites_list_fragment) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         handleSystemInsets(view)
         viewModel.initFavs(revUi)
         binding.rvImages.adapter = adapter
@@ -53,7 +57,7 @@ class FavouritesListFragment : Fragment(R.layout.favourites_list_fragment) {
             StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL)
         initListeners()
         viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.CREATED) {
                 viewModel.favouritesUiState.collect {
                     when (it) {
                         is FavouritesListUiState.Success -> {
@@ -84,9 +88,17 @@ class FavouritesListFragment : Fragment(R.layout.favourites_list_fragment) {
     }
 
 
-    private fun adapterOnClick(image: LocalImage) {
+    private fun adapterOnClick(
+        image: LocalImage,
+        memoryCacheKey: String?
+    ) {
         (activity as MainActivity).navController
-            .navigate(NavBarFragmentDirections.actionNavBarFragmentToImageDetailsFragment(image))
+            .navigate(
+                NavBarFragmentDirections.actionNavBarFragmentToImageDetailsFragment(
+                    image,
+                    memoryCacheKey
+                )
+            )
     }
 
     private fun showError(errorMessage: String?) {

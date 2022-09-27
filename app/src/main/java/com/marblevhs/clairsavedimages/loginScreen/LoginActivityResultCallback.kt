@@ -9,6 +9,7 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.marblevhs.clairsavedimages.MainViewModel
 import com.marblevhs.clairsavedimages.workers.UserRegistrationWorker
+import com.vk.api.sdk.VK
 import com.vk.api.sdk.auth.VKAuthenticationResult
 
 
@@ -19,7 +20,7 @@ class LoginActivityResultCallback(
     override fun onActivityResult(result: VKAuthenticationResult?) {
         if (result is VKAuthenticationResult.Success) {
             viewModel.saveAccessToken(result.token.accessToken)
-
+            VK.logout()
             val constraints = Constraints.Builder()
                 .setRequiredNetworkType(NetworkType.CONNECTED)
                 .build()

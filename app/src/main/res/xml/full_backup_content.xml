@@ -1,5 +1,5 @@
 <full-backup-content>
     <exclude
-        domain="sharedpref"
-        path="encryptedPrefs.xml" />
+        domain="file"
+        path="datastore/encryptedPrefs.preferences_pb" />
 </full-backup-content>
