@@ -14,6 +14,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.FragmentNavigator
 import androidx.paging.LoadState
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import by.kirich1409.viewbindingdelegate.viewBinding
@@ -40,7 +41,13 @@ class ImageListFragment : Fragment(R.layout.image_list_fragment) {
     private val viewModel: ImageListViewModel by viewModels { viewModelFactory }
     private val binding by viewBinding(ImageListFragmentBinding::bind)
     private val adapter: ImageListAdapter =
-        ImageListAdapter { image -> adapterOnClick(image) }
+        ImageListAdapter { image, memoryCacheKey, extras ->
+            adapterOnClick(
+                image,
+                memoryCacheKey,
+                extras
+            )
+        }
     private var albumIdUi: String = Album.DEBUG.albumId
 
     override fun onAttach(context: Context) {
@@ -56,6 +63,14 @@ class ImageListFragment : Fragment(R.layout.image_list_fragment) {
         }
         NotificationManagerCompat.from(requireContext()).cancel(R.string.new_image_notification_id)
         handleSystemInsets(binding.toolbar)
+//        TODO:
+//        binding.rvImages.apply {
+//            postponeEnterTransition()
+//            viewTreeObserver.addOnPreDrawListener {
+//                startPostponedEnterTransition()
+//                true
+//            }
+//        }
         binding.rvImages.adapter = adapter.withLoadStateHeaderAndFooter(
             header = ImageListLoaderStateAdapter(),
             footer = ImageListLoaderStateAdapter()
@@ -146,9 +161,18 @@ class ImageListFragment : Fragment(R.layout.image_list_fragment) {
         }
     }
 
-    private fun adapterOnClick(image: LocalImage) {
+    private fun adapterOnClick(
+        image: LocalImage,
+        memoryCacheKey: String? = null,
+        extras: FragmentNavigator.Extras
+    ) {
         (activity as MainActivity).navController
-            .navigate(NavBarFragmentDirections.actionNavBarFragmentToImageDetailsFragment(image))
+            .navigate(
+                NavBarFragmentDirections.actionNavBarFragmentToImageDetailsFragment(
+                    image,
+                    memoryCacheKey
+                ), extras
+            )
     }
 
     private fun showError(exception: Throwable) {

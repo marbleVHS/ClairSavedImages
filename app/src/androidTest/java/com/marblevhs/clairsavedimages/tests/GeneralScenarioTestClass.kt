@@ -1,24 +1,23 @@
 package com.marblevhs.clairsavedimages.tests
 
 
+import android.Manifest
 import androidx.test.ext.junit.rules.ActivityScenarioRule
+import androidx.test.rule.GrantPermissionRule
 import com.kaspersky.kaspresso.testcases.api.testcase.TestCase
 import com.marblevhs.clairsavedimages.MainActivity
-import com.marblevhs.clairsavedimages.screens.LoginScreen
-import com.marblevhs.clairsavedimages.screens.NavBarScreen
-import com.marblevhs.clairsavedimages.screens.ProfileScreen
-import com.marblevhs.clairsavedimages.screens.SignOutDialogScreen
+import com.marblevhs.clairsavedimages.screens.*
 import org.junit.Rule
 import org.junit.Test
 
 
-class SampleTestClass : TestCase() {
+class GeneralScenarioTestClass : TestCase() {
 
-//    @get:Rule
-//    val runtimePermissionRule: GrantPermissionRule = GrantPermissionRule.grant(
-//        Manifest.permission.WRITE_EXTERNAL_STORAGE,
-//        Manifest.permission.READ_EXTERNAL_STORAGE
-//    )
+    @get:Rule
+    val runtimePermissionRule: GrantPermissionRule = GrantPermissionRule.grant(
+        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+        Manifest.permission.READ_EXTERNAL_STORAGE
+    )
 
     @get:Rule
     val activityRule = ActivityScenarioRule(MainActivity::class.java)
@@ -40,7 +39,7 @@ class SampleTestClass : TestCase() {
             }
         }
 
-        step("open pictures screen") {
+        step("open images screen") {
             NavBarScreen {
                 picturesNavMenuButton {
                     isVisible()
@@ -50,6 +49,31 @@ class SampleTestClass : TestCase() {
 
             }
         }
+
+        step("open details screen") {
+            ImagesListScreen {
+                rvImages {
+                    scrollTo(2)
+                    childAt<ImagesItem>(2) {
+                        isVisible()
+                        isClickable()
+                        click()
+                    }
+                }
+            }
+        }
+
+        step("add new favourite") {
+            ImageDetailsScreen {
+                favouritesButton {
+                    isVisible()
+                    isClickable()
+                    click()
+                }
+                pressBack()
+            }
+        }
+
         step("open favourites screen") {
             NavBarScreen {
                 favouritesNavMenuButton {
@@ -59,6 +83,30 @@ class SampleTestClass : TestCase() {
                 }
             }
         }
+
+        step("open last favourite") {
+            FavouritesListScreen {
+                rvImages.childAt<FavouritesItem>(0) {
+                    isVisible()
+                    isClickable()
+                    click()
+                }
+            }
+        }
+
+        step("delete last favourite") {
+            ImageDetailsScreen {
+                favouritesButton {
+                    isVisible()
+                    isClickable()
+                    isChecked()
+                    click()
+                }
+                pressBack()
+            }
+        }
+
+
         step("open profile screen") {
             NavBarScreen {
                 profileNavMenuButton {

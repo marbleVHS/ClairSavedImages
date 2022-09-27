@@ -4,6 +4,7 @@ package com.marblevhs.clairsavedimages
 import android.os.Build
 import android.os.Bundle
 import android.view.WindowManager
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -44,6 +45,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var vkLoginManager: VKLoginManager
 
     lateinit var navController: NavController
+    private lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
     private val viewModel: MainViewModel by viewModels { viewModelFactory }
     private val windowInsetsController by lazy {
         WindowCompat.getInsetsController(window, window.decorView)
@@ -53,8 +55,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         this.appComponent.inject(this)
+        registerPermissionRequest()
         if (savedInstanceState == null) {
-            requestNotificationPermission()
             startFetchingWorker()
         }
         setupEdgeToEdgeBehavior()
@@ -87,6 +89,7 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+
     private fun initializeNavigation() {
         val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.NavHostFragment) as NavHostFragment
@@ -103,16 +106,19 @@ class MainActivity : AppCompatActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
     }
 
-    private fun requestNotificationPermission() {
+    private fun registerPermissionRequest() {
+        requestPermissionLauncher =
+            registerForActivityResult(
+                ActivityResultContracts.RequestPermission()
+            ) {}
+    }
+
+    fun requestNotificationPermission() {
         if (ContextCompat.checkSelfPermission(
                 this,
                 "android.permission.POST_NOTIFICATIONS"
             ) == PermissionChecker.PERMISSION_DENIED
         ) {
-            val requestPermissionLauncher =
-                registerForActivityResult(
-                    ActivityResultContracts.RequestPermission()
-                ) {}
             requestPermissionLauncher.launch("android.permission.POST_NOTIFICATIONS")
         }
     }
@@ -136,6 +142,7 @@ class MainActivity : AppCompatActivity() {
             ExistingPeriodicWorkPolicy.REPLACE,
             work
         )
+
 
     }
 

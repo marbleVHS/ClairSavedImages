@@ -5,19 +5,25 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.marblevhs.clairsavedimages.data.UserProfile
 import com.marblevhs.clairsavedimages.repositories.ProfileRepo
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import com.marblevhs.clairsavedimages.repositories.SettingsRepo
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class ProfileViewModel(private val profileRepo: ProfileRepo) : ViewModel() {
+class ProfileViewModel(
+    private val profileRepo: ProfileRepo,
+    private val settingsRepo: SettingsRepo
+) : ViewModel() {
 
     @Suppress("UNCHECKED_CAST")
-    class Factory @Inject constructor(private val profileRepo: ProfileRepo) :
+    class Factory @Inject constructor(
+        private val profileRepo: ProfileRepo,
+        private val settingsRepo: SettingsRepo
+    ) :
         ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return ProfileViewModel(profileRepo = profileRepo) as T
+            return ProfileViewModel(profileRepo = profileRepo, settingsRepo = settingsRepo) as T
         }
     }
 
@@ -26,6 +32,9 @@ class ProfileViewModel(private val profileRepo: ProfileRepo) : ViewModel() {
 
     private val _profileUiState = MutableStateFlow<ProfileUiState>(profileDefaultState)
     val profileUiState: StateFlow<ProfileUiState> = _profileUiState.asStateFlow()
+
+    val notificationToggleState = settingsRepo.getNotificationsToggleFlow()
+        .stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
     fun initProfile() {
         if (profileUiState.value !is ProfileUiState.Success) {
@@ -40,11 +49,19 @@ class ProfileViewModel(private val profileRepo: ProfileRepo) : ViewModel() {
 
     }
 
+    fun notificationSwitchInvoked(value: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            settingsRepo.setNotificationToggle(value)
+        }
+    }
+
 
 }
 
 sealed class ProfileUiState {
-    data class Success(val userProfile: UserProfile) : ProfileUiState()
+    data class Success(val userProfile: UserProfile) :
+        ProfileUiState()
+
     data class Error(val exception: Throwable) : ProfileUiState()
     object InitLoadingState : ProfileUiState()
 }

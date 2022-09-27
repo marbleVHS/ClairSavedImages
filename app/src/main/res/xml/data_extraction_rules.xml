@@ -26,12 +26,12 @@
         <exclude domain="root" path="file_to_exclude"/>
         -->
         <exclude
-            domain="sharedpref"
-            path="encryptedPrefs.xml" />
+            domain="file"
+            path="datastore/encryptedPrefs.preferences_pb" />
     </cloud-backup>
     <device-transfer>
         <exclude
-            domain="sharedpref"
-            path="encryptedPrefs.xml" />
+            domain="file"
+            path="datastore/encryptedPrefs.preferences_pb" />
     </device-transfer>
 </data-extraction-rules>

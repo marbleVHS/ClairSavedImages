@@ -14,4 +14,16 @@ class TestSettingsRepoImpl @Inject constructor() : SettingsRepo {
         TODO("Not yet implemented")
     }
 
+    override fun getNotificationsToggleFlow(): Flow<Boolean> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun isNotificationsEnabled(): Boolean {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun setNotificationToggle(value: Boolean) {
+        TODO("Not yet implemented")
+    }
+
 }

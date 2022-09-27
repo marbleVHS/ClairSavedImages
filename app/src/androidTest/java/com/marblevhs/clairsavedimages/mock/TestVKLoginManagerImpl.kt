@@ -30,7 +30,7 @@ class TestVKLoginManagerImpl @Inject constructor(
         runBlocking {
             encryptedDataStore.setSecuredString(
                 TOKEN_KEY,
-                BuildConfig.TEST_TOKEN_KEY
+                BuildConfig.TEST_TOKEN
             )
         }
     }

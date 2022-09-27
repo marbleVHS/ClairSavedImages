@@ -98,6 +98,17 @@
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
+            <Button
+                android:id="@+id/buttonErrorLogOut"
+                style="@style/Widget.Material3.Button.ElevatedButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:text="Sign out"
+                android:visibility="gone"
+                tools:visibility="visible" />
+
             <TextView
                 android:id="@+id/tvTheme"
                 android:layout_width="match_parent"
@@ -141,16 +152,23 @@
                     android:textAlignment="textStart" />
             </RadioGroup>
 
-            <Button
-                android:id="@+id/buttonErrorLogOut"
-                style="@style/Widget.Material3.Button.ElevatedButton"
+            <TextView
+                android:id="@+id/tvSettings"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
                 android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:text="Sign out"
-                android:visibility="gone"
-                tools:visibility="visible" />
+                android:layout_marginBottom="8dp"
+                android:text="Other settings"
+                android:textAppearance="@style/TextAppearance.AppCompat.Large" />
+
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:id="@+id/notificationSwitch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:text="New images notifications" />
 
 
         </LinearLayout>

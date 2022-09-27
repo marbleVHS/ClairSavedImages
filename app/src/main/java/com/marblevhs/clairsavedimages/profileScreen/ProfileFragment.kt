@@ -16,6 +16,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import by.kirich1409.viewbindingdelegate.viewBinding
 import coil.load
 import coil.transform.CircleCropTransformation
+import com.marblevhs.clairsavedimages.MainActivity
 import com.marblevhs.clairsavedimages.MainViewModel
 import com.marblevhs.clairsavedimages.R
 import com.marblevhs.clairsavedimages.data.UserProfile
@@ -58,15 +59,22 @@ class ProfileFragment : Fragment(R.layout.profile_fragment) {
                             is ProfileUiState.InitLoadingState -> {
                                 binding.ivProfileError.visibility = View.INVISIBLE
                                 binding.profileLoader.visibility = View.VISIBLE
+                                binding.notificationSwitch.visibility = View.INVISIBLE
                                 binding.tvProfileName.visibility = View.INVISIBLE
                                 binding.ivProfileImage.visibility = View.INVISIBLE
                                 binding.buttonLogOut.visibility = View.INVISIBLE
                                 binding.tvTheme.visibility = View.INVISIBLE
+                                binding.tvSettings.visibility = View.INVISIBLE
                                 binding.ThemeChooser.visibility = View.INVISIBLE
                             }
                             is ProfileUiState.Error ->
                                 showError(it.exception.localizedMessage)
                         }
+                    }
+                }
+                launch {
+                    viewModel.notificationToggleState.collect {
+                        binding.notificationSwitch.isChecked = it
                     }
                 }
                 launch {
@@ -102,6 +110,8 @@ class ProfileFragment : Fragment(R.layout.profile_fragment) {
         binding.tvProfileName.text = fullName
         binding.ThemeChooser.visibility = View.VISIBLE
         binding.tvTheme.visibility = View.VISIBLE
+        binding.tvSettings.visibility = View.VISIBLE
+        binding.notificationSwitch.visibility = View.VISIBLE
         binding.profileLoader.visibility = View.INVISIBLE
         binding.ivProfileError.visibility = View.INVISIBLE
         binding.tvProfileName.visibility = View.VISIBLE
@@ -117,6 +127,8 @@ class ProfileFragment : Fragment(R.layout.profile_fragment) {
         binding.ivProfileError.visibility = View.VISIBLE
         binding.ThemeChooser.visibility = View.VISIBLE
         binding.tvTheme.visibility = View.VISIBLE
+        binding.tvSettings.visibility = View.VISIBLE
+        binding.notificationSwitch.visibility = View.VISIBLE
         binding.profileLoader.visibility = View.INVISIBLE
         binding.tvProfileName.visibility = View.INVISIBLE
         binding.ivProfileImage.visibility = View.INVISIBLE
@@ -149,6 +161,12 @@ class ProfileFragment : Fragment(R.layout.profile_fragment) {
                 SignOutConfirmationDialogFragment.TAG
             )
         }
+        binding.notificationSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
+            if (isChecked) {
+                (activity as MainActivity).requestNotificationPermission()
+            }
+            viewModel.notificationSwitchInvoked(isChecked)
+        }
         binding.buttonErrorLogOut.setOnClickListener {
             SignOutConfirmationDialogFragment().show(
                 childFragmentManager,
@@ -165,6 +183,7 @@ class ProfileFragment : Fragment(R.layout.profile_fragment) {
             mainViewModel.setDefaultNightMode(NightMode.SYSTEM.value)
         }
     }
+
 
     companion object {
         fun newInstance() = ProfileFragment()

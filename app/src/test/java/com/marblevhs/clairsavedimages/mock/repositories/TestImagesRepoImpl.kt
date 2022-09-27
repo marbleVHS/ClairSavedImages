@@ -22,7 +22,7 @@ class TestImagesRepoImpl @Inject constructor() : ImagesRepo {
     }
 
     override suspend fun getIsLiked(itemId: String, ownerId: String): Boolean {
-        TODO("Not yet implemented")
+        return true
     }
 
     override suspend fun addLike(itemId: String, ownerId: String) {
@@ -38,7 +38,7 @@ class TestImagesRepoImpl @Inject constructor() : ImagesRepo {
     }
 
     override suspend fun getIsFav(itemId: String, ownerId: String): Boolean {
-        TODO("Not yet implemented")
+        return true
     }
 
     override suspend fun addFav(image: LocalImage) {

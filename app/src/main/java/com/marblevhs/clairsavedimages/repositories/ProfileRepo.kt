@@ -8,6 +8,7 @@ import com.marblevhs.clairsavedimages.persistence.EncryptedDataStore
 import com.marblevhs.clairsavedimages.persistence.TOKEN_KEY
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
@@ -19,6 +20,7 @@ interface ProfileRepo {
     suspend fun clearLoginData()
     suspend fun registerUserToServer()
     suspend fun sendFCMRegistrationToServer(token: String)
+    fun getProfileFlow(): Flow<UserProfile>
 }
 
 @AppScope
@@ -35,6 +37,17 @@ class ProfileRepoImpl @Inject constructor(
             accessToken = accessToken
         ).userProfiles[0]
         return userProfile
+    }
+
+    override fun getProfileFlow(): Flow<UserProfile> {
+        return flow {
+            val accessToken: String =
+                encryptedPrefs.getSecuredStringFlow(TOKEN_KEY).firstOrNull() ?: "0"
+            val userProfile = profileService.requestProfileInfo(
+                accessToken = accessToken
+            ).userProfiles[0]
+            emit(userProfile)
+        }
     }
 
     override fun getIsLoggedFlow(): Flow<Boolean> =

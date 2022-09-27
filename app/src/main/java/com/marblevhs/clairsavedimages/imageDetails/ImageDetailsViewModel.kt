@@ -1,17 +1,15 @@
 package com.marblevhs.clairsavedimages.imageDetails
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.marblevhs.clairsavedimages.data.LocalImage
 import com.marblevhs.clairsavedimages.repositories.ImagesRepo
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class ImageDetailsViewModel(private val imagesRepo: ImagesRepo) : ViewModel() {
@@ -34,25 +32,22 @@ class ImageDetailsViewModel(private val imagesRepo: ImagesRepo) : ViewModel() {
         fullSizeUrl = ""
     )
 
+
     fun newImageSelected(image: LocalImage) {
         viewModelScope.launch(Dispatchers.IO) {
             _detailsUiState.value = ImageDetailsUiState.LoadingState
             try {
-                val imageBelongingToLists = coroutineScope {
-                    val isLiked =
-                        async { imagesRepo.getIsLiked(itemId = image.id, ownerId = image.ownerId) }
-                    val isFav =
-                        async { imagesRepo.getIsFav(itemId = image.id, ownerId = image.ownerId) }
-                    return@coroutineScope mapOf(
-                        "isLiked" to isLiked.await(),
-                        "isFav" to isFav.await()
-                    )
-                }
                 imageInstance = image
+                val isLiked = coroutineScope {
+                    withContext(Dispatchers.IO) { isCurrentImageLiked() }
+                }
+                val isFav = coroutineScope {
+                    withContext(Dispatchers.IO) { isCurrentImageFav() }
+                }
                 _detailsUiState.value =
                     ImageDetailsUiState.Success(
-                        isLiked = imageBelongingToLists["isLiked"] ?: false,
-                        isFav = imageBelongingToLists["isFav"] ?: false,
+                        isLiked = isLiked,
+                        isFav = isFav,
                         image = image
                     )
             } catch (e: Exception) {
@@ -66,26 +61,15 @@ class ImageDetailsViewModel(private val imagesRepo: ImagesRepo) : ViewModel() {
     fun likeButtonClicked() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                var isLiked =
-                    imagesRepo.getIsLiked(
-                        itemId = imageInstance.id,
-                        ownerId = imageInstance.ownerId
-                    )
-                val isFav = imagesRepo.getIsFav(imageInstance.id, imageInstance.ownerId)
-                if (isLiked) {
+                val isLiked = async { isCurrentImageLiked() }
+                val isFav = async { isCurrentImageFav() }
+                if (isLiked.await()) {
                     launch {
                         imagesRepo.deleteLike(
                             itemId = imageInstance.id,
                             ownerId = imageInstance.ownerId
                         )
                     }
-                    isLiked = !isLiked
-                    _detailsUiState.value =
-                        ImageDetailsUiState.Success(
-                            isLiked = isLiked,
-                            isFav = isFav,
-                            image = imageInstance
-                        )
                 } else {
                     launch {
                         imagesRepo.addLike(
@@ -93,15 +77,15 @@ class ImageDetailsViewModel(private val imagesRepo: ImagesRepo) : ViewModel() {
                             ownerId = imageInstance.ownerId
                         )
                     }
-                    isLiked = !isLiked
-                    _detailsUiState.value =
-                        ImageDetailsUiState.Success(
-                            isLiked = isLiked,
-                            isFav = isFav,
-                            image = imageInstance
-                        )
                 }
+                _detailsUiState.value =
+                    ImageDetailsUiState.Success(
+                        isLiked = !isLiked.await(),
+                        isFav = isFav.await(),
+                        image = imageInstance
+                    )
             } catch (e: Exception) {
+                Log.e("RESP", e.stackTrace.toString())
                 _detailsUiState.value = ImageDetailsUiState.Error(e)
             }
         }
@@ -110,35 +94,53 @@ class ImageDetailsViewModel(private val imagesRepo: ImagesRepo) : ViewModel() {
     fun favouritesButtonClicked() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val isLiked =
-                    imagesRepo.getIsLiked(
-                        itemId = imageInstance.id,
-                        ownerId = imageInstance.ownerId
-                    )
-                var isFav = imagesRepo.getIsFav(imageInstance.id, imageInstance.ownerId)
+                val isFav = isCurrentImageFav()
+                val isLiked = isCurrentImageLiked()
                 if (isFav) {
                     launch { imagesRepo.deleteFav(imageInstance) }
-                    isFav = !isFav
-                    _detailsUiState.value =
-                        ImageDetailsUiState.Success(
-                            isLiked = isLiked,
-                            isFav = isFav,
-                            image = imageInstance
-                        )
                 } else {
                     launch { imagesRepo.addFav(imageInstance) }
-                    isFav = !isFav
-                    _detailsUiState.value =
-                        ImageDetailsUiState.Success(
-                            isLiked = isLiked,
-                            isFav = isFav,
-                            image = imageInstance
-                        )
                 }
+                _detailsUiState.value =
+                    ImageDetailsUiState.Success(
+                        isLiked = isLiked,
+                        isFav = !isFav,
+                        image = imageInstance
+                    )
             } catch (e: Exception) {
                 _detailsUiState.value = ImageDetailsUiState.Error(e)
             }
         }
+    }
+
+    private suspend fun isCurrentImageLiked(): Boolean {
+        val isLiked = when (detailsUiState.value) {
+            is ImageDetailsUiState.Success -> {
+                (detailsUiState.value as ImageDetailsUiState.Success).isLiked
+            }
+            else -> {
+                imagesRepo.getIsLiked(
+                    imageInstance.id,
+                    imageInstance.ownerId
+                )
+            }
+        }
+        return isLiked
+    }
+
+    private suspend fun isCurrentImageFav(): Boolean {
+        val isFav = when (detailsUiState.value) {
+            is ImageDetailsUiState.Success -> {
+                (detailsUiState.value as ImageDetailsUiState.Success).isFav
+            }
+            else -> {
+                imagesRepo.getIsFav(
+                    imageInstance.id,
+                    imageInstance.ownerId
+                )
+            }
+        }
+        return isFav
     }
 
     private val detailsDefaultState = ImageDetailsUiState.LoadingState

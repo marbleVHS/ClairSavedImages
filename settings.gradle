@@ -9,3 +9,5 @@ dependencyResolutionManagement {
 rootProject.name = "ClairSavedImages"
 include ':app'
 include ':core:ui'
+include ':loupe-library'
+include ':loupe-extensions'
