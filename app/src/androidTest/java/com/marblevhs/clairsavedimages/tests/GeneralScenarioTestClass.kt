@@ -8,6 +8,8 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.rule.GrantPermissionRule
 import androidx.work.ListenableWorker
 import androidx.work.testing.TestListenableWorkerBuilder
+import com.kaspersky.components.alluresupport.withAllureSupport
+import com.kaspersky.kaspresso.kaspresso.Kaspresso
 import com.kaspersky.kaspresso.testcases.api.testcase.TestCase
 import com.marblevhs.clairsavedimages.MainActivity
 import com.marblevhs.clairsavedimages.screens.*
@@ -20,7 +22,9 @@ import org.junit.Rule
 import org.junit.Test
 
 
-class GeneralScenarioTestClass : TestCase() {
+class GeneralScenarioTestClass : TestCase(
+    kaspressoBuilder = Kaspresso.Builder.withAllureSupport()
+) {
     private lateinit var context: Context
 
     @get:Rule
@@ -148,7 +152,7 @@ class GeneralScenarioTestClass : TestCase() {
             }
         }
 
-        step("check Fetcher worker") {
+        step("check Fetching worker") {
             ProfileScreen {
                 notificationToggle {
                     isVisible()

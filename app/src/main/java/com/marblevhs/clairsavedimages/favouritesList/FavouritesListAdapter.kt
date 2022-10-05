@@ -1,6 +1,7 @@
 package com.marblevhs.clairsavedimages.favouritesList
 
 
+import android.graphics.Bitmap
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -41,6 +42,8 @@ class FavouritesListAdapter(
             set.setDimensionRatio(cardView.id, ratio)
             set.applyTo(constraintLayout)
             ivImage.load(image.thumbnailUrl) {
+                bitmapConfig(Bitmap.Config.ARGB_8888)
+                allowHardware(false)
                 crossfade(enable = true)
                 placeholder(R.drawable.ic_download_progress)
                 error(R.drawable.ic_download_error)
