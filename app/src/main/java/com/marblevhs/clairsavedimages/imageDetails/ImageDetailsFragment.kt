@@ -2,6 +2,7 @@ package com.marblevhs.clairsavedimages.imageDetails
 
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -128,6 +129,8 @@ class ImageDetailsFragment : Fragment(R.layout.image_details_fragment) {
                                 } else {
                                     placeholderMemoryCacheKey(placeholderMemoryCacheKey)
                                 }
+                                bitmapConfig(Bitmap.Config.ARGB_8888)
+                                allowHardware(false)
                                 error(R.drawable.ic_download_error)
                             }
                         }
@@ -217,6 +220,8 @@ class ImageDetailsFragment : Fragment(R.layout.image_details_fragment) {
                 } else {
                     placeholderMemoryCacheKey(placeholderMemoryCacheKey)
                 }
+                allowHardware(false)
+                bitmapConfig(Bitmap.Config.ARGB_8888)
                 error(R.drawable.ic_download_error)
             }
             updateIsLiked(isLiked)

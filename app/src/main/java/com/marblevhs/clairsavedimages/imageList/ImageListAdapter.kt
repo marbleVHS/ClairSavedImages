@@ -1,6 +1,7 @@
 package com.marblevhs.clairsavedimages.imageList
 
 
+import android.graphics.Bitmap
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -46,6 +47,8 @@ class ImageListAdapter(private val onClick: (LocalImage, String?, FragmentNaviga
             set.applyTo(constraintLayout)
             ivImage.load(image.thumbnailUrl) {
                 crossfade(enable = true)
+                bitmapConfig(Bitmap.Config.ARGB_8888)
+                allowHardware(false)
                 placeholder(R.drawable.ic_download_progress)
                 error(R.drawable.ic_download_error)
                 listener(onSuccess = { _, result -> memoryCacheKey = result.memoryCacheKey?.key })

@@ -2,10 +2,10 @@ package com.marblevhs.clairsavedimages.runners
 
 import android.app.Application
 import android.content.Context
-import androidx.test.runner.AndroidJUnitRunner
 import com.marblevhs.clairsavedimages.TestMainApp
+import io.qameta.allure.android.runners.AllureAndroidJUnitRunner
 
-class MockedTestRunner : AndroidJUnitRunner() {
+class MockedTestRunner : AllureAndroidJUnitRunner() {
 
     override fun newApplication(
         cl: ClassLoader?,
